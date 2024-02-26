@@ -34,6 +34,7 @@ const (
 	GoogleProviderName    ProviderName = "google"
 	VsphereProviderName   ProviderName = "vsphere"
 	ExternalProviderName  ProviderName = "external"
+	AliyunProviderName    ProviderName = "aliyun" // PANDARIA
 )
 
 var AllRolesMachinePool = MachinePools{

@@ -3,6 +3,9 @@ module github.com/rancher/shepherd
 go 1.20
 
 replace (
+	github.com/rancher/norman => github.com/cnrancher/pandaria-norman v0.0.0-20230601033147-98b33cebd03f
+	github.com/rancher/rancher/pkg/apis => github.com/cnrancher/pandaria/pkg/apis v0.0.0-20240223075159-94c63ed48f92
+
 	k8s.io/api => k8s.io/api v0.27.4
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.27.4
 	k8s.io/apimachinery => k8s.io/apimachinery v0.27.4
@@ -10,6 +13,14 @@ replace (
 	k8s.io/cli-runtime => k8s.io/cli-runtime v0.27.4
 	k8s.io/client-go => github.com/rancher/client-go v1.27.4-rancher1
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f
+)
+
+require (
+	github.com/cnrancher/cce-operator v0.4.4
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.69
+	github.com/sirupsen/logrus v1.9.3
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.715
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm v1.0.715
 )
 
 require (
@@ -25,20 +36,19 @@ require (
 	github.com/rancher/eks-operator v1.3.0
 	github.com/rancher/fleet/pkg/apis v0.0.0-20231017140638-93432f288e79
 	github.com/rancher/gke-operator v1.2.0
-	github.com/rancher/lasso v0.0.0-20230830164424-d684fdeb6f29
-	github.com/rancher/norman v0.0.0-20230831160711-5de27f66385d
+	github.com/rancher/lasso v0.0.0-20240123150939-7055397d6dfa
+	github.com/rancher/norman v0.0.0-20240205154641-a6a6cf569608
 	github.com/rancher/rancher/pkg/apis v0.0.0-20230915232223-a9ea4ce4a5ba
-	github.com/rancher/rke v1.5.0
+	github.com/rancher/rke v1.5.3
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20210727200656-10b094e30007
 	github.com/rancher/types v0.0.0-20220328215343-4370ff10ecd5
 	github.com/rancher/wrangler v1.1.1
-	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/crypto v0.14.0
+	golang.org/x/crypto v0.16.0
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.27.6
-	k8s.io/apimachinery v0.27.6
+	k8s.io/api v0.28.6
+	k8s.io/apimachinery v0.28.6
 	k8s.io/apiserver v0.27.6
 	k8s.io/cli-runtime v0.27.6
 	k8s.io/client-go v12.0.0+incompatible
@@ -62,6 +72,8 @@ require (
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
+	github.com/cnrancher/ack-operator v0.0.5-0.20231114083454-9eba76c1fd53 // indirect
+	github.com/cnrancher/tke-operator v0.0.0-20231124013843-33386f8dc8fe // indirect
 	github.com/containerd/cgroups v1.0.4 // indirect
 	github.com/containerd/containerd v1.5.18 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
@@ -94,6 +106,7 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/huandu/xstrings v1.3.3 // indirect
@@ -131,25 +144,28 @@ require (
 	github.com/rancher/aks-operator v1.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
+	github.com/smartystreets/assertions v1.1.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.9 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.9 // indirect
 	go.etcd.io/etcd/client/v2 v2.305.7 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.9 // indirect
+	go.mongodb.org/mongo-driver v1.12.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.starlark.net v0.0.0-20230525235612-a134d8f9ddca // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.11.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/term v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/term v0.15.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.12.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.3.0 // indirect
@@ -160,16 +176,17 @@ require (
 	google.golang.org/grpc v1.57.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiextensions-apiserver v0.27.5 // indirect
+	k8s.io/apiextensions-apiserver v0.28.6 // indirect
 	k8s.io/code-generator v0.27.5 // indirect
 	k8s.io/component-base v0.27.6 // indirect
 	k8s.io/gengo v0.0.0-20230306165830-ab3349d207d4 // indirect
 	k8s.io/klog/v2 v2.100.1 // indirect
-	k8s.io/kube-openapi v0.0.0-20230530175149-33f04d5d6b58 // indirect
+	k8s.io/kube-openapi v0.0.0-20230717233707-2695361300d9 // indirect
 	k8s.io/kubernetes v1.27.6 // indirect
 	k8s.io/pod-security-admission v0.27.6 // indirect
-	sigs.k8s.io/cli-utils v0.27.0 // indirect
+	sigs.k8s.io/cli-utils v0.28.0 // indirect
 	sigs.k8s.io/controller-runtime v0.15.1 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.13.4 // indirect
