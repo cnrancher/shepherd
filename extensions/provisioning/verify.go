@@ -2,7 +2,6 @@ package provisioning
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -18,7 +17,6 @@ import (
 	"github.com/rancher/shepherd/extensions/clusters/bundledclusters"
 	"github.com/rancher/shepherd/extensions/defaults"
 	"github.com/rancher/shepherd/extensions/etcdsnapshot"
-	kubeapinodes "github.com/rancher/shepherd/extensions/kubeapi/nodes"
 	"github.com/rancher/shepherd/extensions/kubeconfig"
 	nodestat "github.com/rancher/shepherd/extensions/nodes"
 	"github.com/rancher/shepherd/extensions/provisioninginput"
@@ -26,7 +24,6 @@ import (
 	"github.com/rancher/shepherd/extensions/registries"
 	"github.com/rancher/shepherd/extensions/sshkeys"
 	"github.com/rancher/shepherd/extensions/workloads/pods"
-	"github.com/rancher/shepherd/pkg/nodes"
 	"github.com/rancher/shepherd/pkg/wait"
 	wranglername "github.com/rancher/wrangler/pkg/name"
 	"github.com/sirupsen/logrus"
@@ -400,45 +397,53 @@ func VerifySnapshots(client *rancher.Client, localclusterID string, clusterName 
 	if err != nil {
 		return "", err
 	}
-	var snapshotToBeRestored string
-	var snapshotList []string
-	s3Prefix := onDemandPrefix + clusterName
 
-	err = kwait.Poll(5*time.Second, defaults.FiveMinuteTimeout, func() (done bool, err error) {
+	var snapshotToBeRestored string
+	var snapshotNameList []string
+	s3Prefix := onDemandPrefix + clusterName
+	err = kwait.PollUntilContextTimeout(context.TODO(), 5*time.Second, defaults.FiveMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
 		if isRKE1 {
-			snapshotList, err = etcdsnapshot.GetRKE1Snapshots(client, clusterName)
+			snapshotObjectList, err := etcdsnapshot.GetRKE1Snapshots(client, clusterName)
 			if err != nil {
 				return false, err
 			}
+
+			for _, snapshot := range snapshotObjectList {
+				snapshotNameList = append(snapshotNameList, snapshot.ID)
+			}
 		} else {
-			snapshotList, err = etcdsnapshot.GetRKE2K3SSnapshots(client, localclusterID, clusterName)
+			snapshotObjectList, err := etcdsnapshot.GetRKE2K3SSnapshots(client, localclusterID, clusterName)
 			if err != nil {
 				return false, err
+			}
+
+			for _, snapshot := range snapshotObjectList {
+				snapshotNameList = append(snapshotNameList, snapshot.Name)
 			}
 		}
 
-		if len(snapshotList) == 0 {
+		if len(snapshotNameList) == 0 {
 			return false, fmt.Errorf("no snapshots found")
 		}
 
 		// Indexed from 0 for S3 checks to ensure that the local backup location does not have the s3Prefix.
 		// Needed to ensure that the correct S3 snapshot is restored.
-		if strings.Contains(snapshotList[0], s3Prefix) {
-			snapshotToBeRestored = snapshotList[len(snapshotList)-1]
+		if strings.Contains(snapshotNameList[0], s3Prefix) {
+			snapshotToBeRestored = snapshotNameList[len(snapshotNameList)-1]
 			return true, nil
 		}
 
-		if len(snapshotList) == expectedSnapshotLength {
-			snapshotToBeRestored = snapshotList[0]
+		if len(snapshotNameList) == expectedSnapshotLength {
+			snapshotToBeRestored = snapshotNameList[0]
 			return true, nil
 		}
 
-		if len(snapshotList) > expectedSnapshotLength && isRKE1 {
-			snapshotToBeRestored = snapshotList[0]
+		if len(snapshotNameList) > expectedSnapshotLength && isRKE1 {
+			snapshotToBeRestored = snapshotNameList[0]
 			return true, nil
 		}
 
-		if len(snapshotList) > expectedSnapshotLength && !isRKE1 {
+		if len(snapshotNameList) > expectedSnapshotLength && !isRKE1 {
 			return false, fmt.Errorf("more snapshots than expected")
 		}
 
@@ -452,40 +457,21 @@ func VerifySSHTests(t *testing.T, client *rancher.Client, clusterObject *steveV1
 	client, err := client.ReLogin()
 	require.NoError(t, err)
 
-	clusterSpec := &provv1.ClusterSpec{}
-	err = steveV1.ConvertToK8sType(clusterObject.Spec, clusterSpec)
-	require.NoError(t, err)
-
 	steveClient, err := client.Steve.ProxyDownstream(clusterID)
 	require.NoError(t, err)
+
 	nodesSteveObjList, err := steveClient.SteveType("node").List(nil)
 	require.NoError(t, err)
 
-	dynamicSchema := clusterSpec.RKEConfig.MachinePools[0].DynamicSchemaSpec
-	var data clusters.DynamicSchemaSpec
-	err = json.Unmarshal([]byte(dynamicSchema), &data)
+	sshUser, err := sshkeys.GetSSHUser(client, clusterObject)
 	require.NoError(t, err)
 
-	sshUser := data.ResourceFields.SSHUser.Default.StringValue
 	for _, tests := range sshTests {
-		for _, node := range nodesSteveObjList.Data {
-			machineName := node.Annotations[machineNameAnnotation]
-			sshkey, err := sshkeys.DownloadSSHKeys(client, machineName)
+		for _, machine := range nodesSteveObjList.Data {
+			clusterNode, err := sshkeys.GetSSHNodeFromMachine(client, sshUser, &machine)
 			require.NoError(t, err)
-			assert.NotEmpty(t, sshkey)
 
-			newNode := &corev1.Node{}
-			err = steveV1.ConvertToK8sType(node.JSONResp, newNode)
-			require.NoError(t, err)
-			nodeIP := kubeapinodes.GetNodeIP(newNode, corev1.NodeExternalIP)
-
-			clusterNode := &nodes.Node{
-				NodeID:          node.ID,
-				PublicIPAddress: nodeIP,
-				SSHUser:         sshUser,
-				SSHKey:          sshkey,
-			}
-
+			machineName := machine.Annotations[machineNameAnnotation]
 			err = CallSSHTestByName(tests, clusterNode, client, clusterID, machineName)
 			require.NoError(t, err)
 

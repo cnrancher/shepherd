@@ -1,6 +1,6 @@
 module github.com/rancher/shepherd
 
-go 1.20
+go 1.21
 
 replace (
 	github.com/rancher/norman => github.com/cnrancher/pandaria-norman v0.0.0-20230601033147-98b33cebd03f
