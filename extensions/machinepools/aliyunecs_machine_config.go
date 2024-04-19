@@ -9,7 +9,7 @@ const (
 	ECSKind                              = "aliyunecsConfig"
 	ECSPoolType                          = "rke-machine-config.cattle.io.aliyunecsconfig"
 	ECSResourceConfig                    = "aliyunecsconfigs"
-	ECSMachingConfigConfigurationFileKey = "ecsMachineConfig"
+	ECSMachingConfigConfigurationFileKey = "ecsMachineConfigs"
 )
 
 type ECSMachineConfigs struct {
