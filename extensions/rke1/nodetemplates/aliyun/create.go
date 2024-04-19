@@ -15,7 +15,7 @@ func CreateAliyunECSNodeTemplate(rancherClient *rancher.Client) (*nodetemplates.
 	var aliyunECSNodeNodeTemplateConfig nodetemplates.AliyunECSNodeTemplateConfig
 	config.LoadConfig(nodetemplates.AliyunECSNodeTemplateConfigurationFileKey, &aliyunECSNodeNodeTemplateConfig)
 	nodeTemplate := nodetemplates.NodeTemplate{
-		EngineInstallURL:            "https://releases.rancher.com/install-docker/20.10.sh",
+		EngineInstallURL:            "https://raw.githubusercontent.com/cnrancher/autok3s/master/scripts/docker/24.0.sh",
 		Name:                        aliyunECSTemplateNameBase,
 		AliyunECSNodeTemplateConfig: &aliyunECSNodeNodeTemplateConfig,
 	}
