@@ -12,10 +12,12 @@ import (
 	"github.com/sirupsen/logrus"
 
 	apiv1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
+	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	v1 "github.com/rancher/shepherd/clients/rancher/v1"
 	"github.com/rancher/shepherd/extensions/cloudcredentials/aws"
 	"github.com/rancher/shepherd/extensions/cloudcredentials/azure"
 	"github.com/rancher/shepherd/extensions/cloudcredentials/google"
+	"github.com/rancher/shepherd/extensions/cloudcredentials/vsphere"
 	"github.com/rancher/shepherd/extensions/clusters"
 	"github.com/rancher/shepherd/extensions/clusters/aks"
 	"github.com/rancher/shepherd/extensions/clusters/eks"
@@ -44,9 +46,10 @@ import (
 )
 
 const (
-	active     = "active"
-	internalIP = "rke2.io/internal-ip"
-	namespace  = "fleet-default"
+	active         = "active"
+	internalIP     = "alpha.kubernetes.io/provided-node-ip"
+	rke1ExternalIP = "rke.cattle.io/external-ip"
+	namespace      = "fleet-default"
 
 	rke2k3sAirgapCustomCluster           = "rke2k3sairgapcustomcluster"
 	rke2k3sNodeCorralName                = "rke2k3sregisterNode"
@@ -72,6 +75,7 @@ func CreateProvisioningCluster(client *rancher.Client, provider Provider, cluste
 	clusterName := namegen.AppendRandomString(provider.Name.String())
 	generatedPoolName := fmt.Sprintf("nc-%s-pool1-", clusterName)
 	machinePoolConfigs := provider.MachinePoolFunc(generatedPoolName, namespace)
+
 	var machinePoolResponses []v1.SteveAPIObject
 
 	for _, machinePoolConfig := range machinePoolConfigs {
@@ -91,6 +95,7 @@ func CreateProvisioningCluster(client *rancher.Client, provider Provider, cluste
 				if err != nil {
 					return nil, err
 				}
+
 				secretName := fmt.Sprintf("priv-reg-sec-%s", clusterName)
 				secretTemplate := secrets.NewSecretTemplate(secretName, namespace, map[string][]byte{
 					"password": []byte(clustersConfig.Registries.RKE2Password),
@@ -103,6 +108,7 @@ func CreateProvisioningCluster(client *rancher.Client, provider Provider, cluste
 				if err != nil {
 					return nil, err
 				}
+
 				for registryName, registry := range clustersConfig.Registries.RKE2Registries.Configs {
 					registry.AuthConfigSecretName = registrySecret.Name
 					clustersConfig.Registries.RKE2Registries.Configs[registryName] = registry
@@ -120,6 +126,32 @@ func CreateProvisioningCluster(client *rancher.Client, provider Provider, cluste
 
 	machinePools := machinepools.
 		CreateAllMachinePools(machineConfigs, pools, machinePoolResponses, provider.Roles, hostnameTruncation)
+
+	if clustersConfig.CloudProvider == provisioninginput.VsphereCloudProviderName.String() {
+
+		vcenterCredentials := map[string]interface{}{
+			"datacenters": machinePoolConfigs[0].Object["datacenter"],
+			"host":        cloudCredential.VmwareVsphereConfig.Vcenter,
+			"password":    vsphere.GetVspherePassword(),
+			"username":    cloudCredential.VmwareVsphereConfig.Username,
+		}
+		clustersConfig.AddOnConfig = &provisioninginput.AddOnConfig{
+			ChartValues: &rkev1.GenericMap{
+				Data: map[string]interface{}{
+					"rancher-vsphere-cpi": map[string]interface{}{
+						"vCenter": vcenterCredentials,
+					},
+					"rancher-vsphere-csi": map[string]interface{}{
+						"storageClass": map[string]interface{}{
+							"datastoreURL": machinePoolConfigs[0].Object["datastoreUrl"],
+						},
+						"vCenter": vcenterCredentials,
+					},
+				},
+			},
+		}
+	}
+
 	cluster := clusters.NewK3SRKE2ClusterConfig(clusterName, namespace, clustersConfig, machinePools, cloudCredential.ID)
 
 	for _, truncatedPool := range hostnameTruncation {
@@ -128,6 +160,7 @@ func CreateProvisioningCluster(client *rancher.Client, provider Provider, cluste
 			if truncatedPool.ClusterNameLengthLimit > 0 {
 				cluster.Spec.RKEConfig.MachinePoolDefaults.HostnameLengthLimit = truncatedPool.ClusterNameLengthLimit
 			}
+
 			break
 		}
 	}
@@ -149,6 +182,7 @@ func CreateProvisioningCluster(client *rancher.Client, provider Provider, cluste
 	createdCluster, err := adminClient.Steve.
 		SteveType(clusters.ProvisioningSteveResourceType).
 		ByID(namespace + "/" + clusterName)
+
 	return createdCluster, err
 }
 
@@ -805,13 +839,14 @@ func AddRKE2K3SCustomClusterNodes(client *rancher.Client, cluster *v1.SteveAPIOb
 		logrus.Infof(output)
 	}
 
-	err = kwait.Poll(500*time.Millisecond, defaults.TenMinuteTimeout, func() (done bool, err error) {
+	err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.ThirtyMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
 		clusterResp, err := client.Steve.SteveType(clusters.ProvisioningSteveResourceType).ByID(cluster.ID)
 		if err != nil {
 			return false, err
 		}
 
-		if clusterResp.ObjectMeta.State.Name == active && nodestat.AllManagementNodeReady(client, cluster.ID, defaults.ThirtyMinuteTimeout) == nil {
+		if clusterResp.ObjectMeta.State.Name == active &&
+			nodestat.AllMachineReady(client, cluster.ID, defaults.ThirtyMinuteTimeout) == nil {
 			return true, nil
 		}
 		return false, nil
@@ -837,7 +872,9 @@ func DeleteRKE2K3SCustomClusterNodes(client *rancher.Client, clusterID string, c
 
 	for _, nodeToDelete := range nodesToDelete {
 		for _, node := range nodesSteveObjList.Data {
-			if node.Annotations[internalIP] == nodeToDelete.PrivateIPAddress {
+			snippedIP := strings.Split(node.Annotations[internalIP], ",")[0]
+
+			if snippedIP == nodeToDelete.PrivateIPAddress {
 				machine, err := client.Steve.SteveType(machineSteveResourceType).ByID(namespace + "/" + node.Annotations[machineNameAnnotation])
 				if err != nil {
 					return err
@@ -849,7 +886,7 @@ func DeleteRKE2K3SCustomClusterNodes(client *rancher.Client, clusterID string, c
 					return err
 				}
 
-				err = kwait.Poll(500*time.Millisecond, defaults.TenMinuteTimeout, func() (done bool, err error) {
+				err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.ThirtyMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
 					_, err = client.Steve.SteveType(machineSteveResourceType).ByID(machine.ID)
 					if err != nil {
 						logrus.Infof("Node has successfully been deleted!")
@@ -887,13 +924,19 @@ func AddRKE1CustomClusterNodes(client *rancher.Client, cluster *management.Clust
 		logrus.Infof(output)
 	}
 
-	err = kwait.Poll(500*time.Millisecond, defaults.TenMinuteTimeout, func() (done bool, err error) {
+	err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.ThirtyMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
+		client, err = client.ReLogin()
+		if err != nil {
+			return false, err
+		}
+
 		clusterResp, err := client.Management.Cluster.ByID(cluster.ID)
 		if err != nil {
 			return false, err
 		}
 
-		if clusterResp.State == active && nodestat.AllManagementNodeReady(client, cluster.ID, defaults.ThirtyMinuteTimeout) == nil {
+		if clusterResp.State == active &&
+			nodestat.AllManagementNodeReady(client, cluster.ID, defaults.ThirtyMinuteTimeout) == nil {
 			return true, nil
 		}
 		return false, nil
@@ -916,7 +959,7 @@ func DeleteRKE1CustomClusterNodes(client *rancher.Client, cluster *management.Cl
 
 	for _, nodeToDelete := range nodesToDelete {
 		for _, node := range nodes.Data {
-			if node.ExternalIPAddress == nodeToDelete.PublicIPAddress {
+			if node.Annotations[rke1ExternalIP] == nodeToDelete.PublicIPAddress {
 				machine, err := client.Management.Node.ByID(node.ID)
 				if err != nil {
 					return err
@@ -928,7 +971,7 @@ func DeleteRKE1CustomClusterNodes(client *rancher.Client, cluster *management.Cl
 					return err
 				}
 
-				err = kwait.Poll(500*time.Millisecond, defaults.TenMinuteTimeout, func() (done bool, err error) {
+				err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.ThirtyMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
 					_, err = client.Management.Node.ByID(machine.ID)
 					if err != nil {
 						logrus.Infof("Node has successfully been deleted!")

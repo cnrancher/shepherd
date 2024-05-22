@@ -6,8 +6,6 @@ const AzureNodeTemplateConfigurationFileKey = "azureConfig"
 // AzureNodeTemplateConfig is configuration need to create a Azure node template
 type AzureNodeTemplateConfig struct {
 	AvailabilitySet   string   `json:"availabilitySet" yaml:"availabilitySet"`
-	ClientID          string   `json:"clientId" yaml:"clientId"`
-	ClientSecret      string   `json:"clientSecret" yaml:"clientSecret"`
 	CustomData        string   `json:"customData" yaml:"customData"`
 	DiskSize          string   `json:"diskSize" yaml:"diskSize"`
 	DNS               string   `json:"dns" yaml:"dns"`
@@ -19,6 +17,7 @@ type AzureNodeTemplateConfig struct {
 	ManagedDisks      bool     `json:"managedDisks" yaml:"managedDisks"`
 	NoPublicIP        bool     `json:"noPublicIp" yaml:"noPublicIp"`
 	OpenPort          []string `json:"openPort" yaml:"openPort"`
+	NSG               string   `json:"nsg" yaml:"nsg"`
 	Plan              string   `json:"plan" yaml:"plan"`
 	PrivateIPAddress  string   `json:"privateIpAddress" yaml:"privateIpAddress"`
 	ResourceGroup     string   `json:"resourceGroup" yaml:"resourceGroup"`
@@ -28,8 +27,6 @@ type AzureNodeTemplateConfig struct {
 	StorageType       string   `json:"storageType" yaml:"storageType"`
 	Subnet            string   `json:"subnet" yaml:"subnet"`
 	SubnetPrefix      string   `json:"subnetPrefix" yaml:"subnetPrefix"`
-	SubscriptionID    string   `json:"subscriptionId" yaml:"subscriptionId"`
-	TenantID          string   `json:"tenantId" yaml:"tenantId"`
 	Type              string   `json:"type" yaml:"type"`
 	UpdateDomainCount string   `json:"updateDomainCount" yaml:"updateDomainCount"`
 	UsePrivateIP      bool     `json:"usePrivateIp" yaml:"usePrivateIp"`

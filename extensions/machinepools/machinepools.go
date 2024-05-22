@@ -1,6 +1,7 @@
 package machinepools
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/rancher/shepherd/clients/rancher"
 	v1 "github.com/rancher/shepherd/clients/rancher/v1"
 	"github.com/rancher/shepherd/extensions/defaults"
+	"github.com/rancher/shepherd/extensions/kubeapi/secrets"
 	nodestat "github.com/rancher/shepherd/extensions/nodes"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
@@ -19,8 +21,16 @@ import (
 )
 
 const (
-	active = "active"
-	pool   = "pool"
+	active                   = "active"
+	fleetNamespace           = "fleet-default"
+	initNodeLabelKey         = "rke.cattle.io/init-node"
+	local                    = "local"
+	machineNameSteveLabel    = "rke.cattle.io/machine-name"
+	machinePlanSecretType    = "rke.cattle.io/machine-plan"
+	machineSteveResourceType = "cluster.x-k8s.io.machine"
+	clusterNameLabelKey      = "cluster.x-k8s.io/cluster-name"
+	pool                     = "pool"
+	True                     = "true"
 
 	nodeRoleListLength = 4
 )
@@ -72,14 +82,19 @@ func updateMachinePoolQuantity(client *rancher.Client, cluster *v1.SteveAPIObjec
 		return nil, err
 	}
 
-	err = kwait.Poll(500*time.Millisecond, defaults.TenMinuteTimeout, func() (done bool, err error) {
+	err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.ThirtyMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
+		client, err = client.ReLogin()
+		if err != nil {
+			return false, err
+		}
+
 		clusterResp, err := client.Steve.SteveType("provisioning.cattle.io.cluster").ByID(cluster.ID)
 		if err != nil {
 			return false, err
 		}
 
 		if clusterResp.ObjectMeta.State.Name == active &&
-			nodestat.AllManagementNodeReady(client, cluster.ID, defaults.ThirtyMinuteTimeout) == nil {
+			nodestat.AllMachineReady(client, cluster.ID, defaults.ThirtyMinuteTimeout) == nil {
 			return true, nil
 		}
 
@@ -283,4 +298,33 @@ func MatchRoleToPool(poolRole string, allRoles []Roles) int {
 	}
 	logrus.Warn("unable to match pool to role, likely missing [roles] in machineConfig")
 	return -1
+}
+
+// GetInitMachine accepts a client and clusterID and returns the "init node" machine
+// object for rke2/k3s clusters
+func GetInitMachine(client *rancher.Client, clusterID string) (*v1.SteveAPIObject, error) {
+	logrus.Info("Retrieving secret and identifying machine...")
+
+	clusterID = strings.Replace(clusterID, "fleet-default/", "", 1)
+
+	secret, err := secrets.ListSecrets(client, local, fleetNamespace, metav1.ListOptions{
+		LabelSelector: initNodeLabelKey + "=" + True + "," + clusterNameLabelKey + "=" + clusterID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// secret.Items[0] will never change when targeting the init node secret,
+	// as the list has been filtered above to grab the single init node secret
+	initNodeMachineName := secret.Items[0].ObjectMeta.Labels[machineNameSteveLabel]
+
+	logrus.Info("Retrieving machine...")
+	initMachine, err := client.Steve.SteveType(machineSteveResourceType).ByID(fleetNamespace + "/" + initNodeMachineName)
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.Infof("Successfully retrieved machine: %s", initNodeMachineName)
+
+	return initMachine, nil
 }
