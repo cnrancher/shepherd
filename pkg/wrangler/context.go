@@ -5,6 +5,7 @@ package wrangler
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -15,14 +16,15 @@ import (
 	"github.com/rancher/lasso/pkg/dynamic"
 	"github.com/rancher/norman/types"
 	managementv3api "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
+	"github.com/rancher/shepherd/pkg/generated/controllers/apps"
+	appsv1 "github.com/rancher/shepherd/pkg/generated/controllers/apps/v1"
+	"github.com/rancher/shepherd/pkg/generated/controllers/core"
+	corev1 "github.com/rancher/shepherd/pkg/generated/controllers/core/v1"
 	"github.com/rancher/shepherd/pkg/generated/controllers/management.cattle.io"
 	managementv3 "github.com/rancher/shepherd/pkg/generated/controllers/management.cattle.io/v3"
 	"github.com/rancher/shepherd/pkg/session"
 	"github.com/rancher/shepherd/pkg/wrangler/pkg/generic"
 	"github.com/rancher/wrangler/v2/pkg/apply"
-	"github.com/rancher/wrangler/v2/pkg/generated/controllers/core"
-	corev1 "github.com/rancher/wrangler/v2/pkg/generated/controllers/core/v1"
-	genericwrangler "github.com/rancher/wrangler/v2/pkg/generic"
 	"github.com/rancher/wrangler/v2/pkg/leader"
 	"github.com/rancher/wrangler/v2/pkg/schemes"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -62,6 +64,7 @@ type Context struct {
 	Apply               apply.Apply
 	Dynamic             *dynamic.Controller
 	Mgmt                managementv3.Interface
+	Apps                appsv1.Interface
 	ControllerFactory   controller.SharedControllerFactory
 	MultiClusterManager MultiClusterManager
 	Core                corev1.Interface
@@ -75,6 +78,7 @@ type Context struct {
 	RESTClientGetter genericclioptions.RESTClientGetter
 
 	mgmt *management.Factory
+	apps *apps.Factory
 	core *core.Factory
 
 	started bool
@@ -160,11 +164,6 @@ func NewContext(ctx context.Context, restConfig *rest.Config, ts *session.Sessio
 		SharedControllerFactory: controllerFactory,
 	}
 
-	// This opt is used for Factories that don't need the test session
-	opt := &genericwrangler.FactoryOptions{
-		SharedControllerFactory: controllerFactory,
-	}
-
 	apply, err := apply.NewForConfig(restConfig)
 	if err != nil {
 		return nil, err
@@ -175,7 +174,12 @@ func NewContext(ctx context.Context, restConfig *rest.Config, ts *session.Sessio
 		return nil, err
 	}
 
-	core, err := core.NewFactoryFromConfigWithOptions(restConfig, opt)
+	apps, err := apps.NewFactoryFromConfigWithOptions(restConfig, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	core, err := core.NewFactoryFromConfigWithOptions(restConfig, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -185,11 +189,13 @@ func NewContext(ctx context.Context, restConfig *rest.Config, ts *session.Sessio
 		Apply:                   apply,
 		SharedControllerFactory: controllerFactory,
 		Mgmt:                    mgmt.Management().V3(),
+		Apps:                    apps.Apps().V1(),
 		Core:                    core.Core().V1(),
 		ControllerFactory:       controllerFactory,
 		controllerLock:          &sync.Mutex{},
 
 		mgmt: mgmt,
+		apps: apps,
 		core: core,
 	}
 
@@ -245,4 +251,17 @@ func syncOnlyChangedObjects(option controllerContextType) bool {
 		}
 	}
 	return false
+}
+
+// DownStreamClusterWranglerContext creates a wrangler context to interact with a specific cluster.
+func (w *Context) DownStreamClusterWranglerContext(clusterID string) (*Context, error) {
+	restConfig := *w.RESTConfig
+	restConfig.Host = fmt.Sprintf("https://%s/k8s/clusters/%s", w.RESTConfig.Host, clusterID)
+
+	clusterContext, err := NewContext(context.TODO(), &restConfig, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return clusterContext, nil
 }
