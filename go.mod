@@ -4,7 +4,7 @@ go 1.22
 
 replace (
 	github.com/rancher/norman => github.com/cnrancher/pandaria-norman v0.0.0-20240621062503-2d184a3b4e05
-	github.com/rancher/rancher/pkg/apis => github.com/cnrancher/pandaria/pkg/apis v0.0.0-20240223075159-94c63ed48f92
+	github.com/rancher/rancher/pkg/apis => github.com/cnrancher/pandaria/pkg/apis v0.0.0-20240626032448-878c50c820e6
 
 	k8s.io/api => k8s.io/api v0.29.3
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.29.3
@@ -18,7 +18,7 @@ replace (
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/aws/aws-sdk-go v1.50.38
-	github.com/cnrancher/cce-operator v0.4.4
+	github.com/cnrancher/cce-operator v0.4.6
 	github.com/creasty/defaults v1.5.2
 	github.com/gorilla/websocket v1.5.1
 	github.com/hashicorp/go-multierror v1.1.1
@@ -26,16 +26,16 @@ require (
 	github.com/hashicorp/hc-install v0.6.2
 	github.com/hashicorp/terraform-exec v0.20.0
 	github.com/hashicorp/terraform-json v0.20.0
-	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.69
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.84
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.52.0
 	github.com/rancher/apiserver v0.0.0-20230831052300-120e615b17ba
-	github.com/rancher/fleet/pkg/apis v0.0.0-20231017140638-93432f288e79
+	github.com/rancher/fleet/pkg/apis v0.10.0-rc.16
 	github.com/rancher/lasso v0.0.0-20240424194130-d87ec407d941
 	github.com/rancher/norman v0.0.0-20240503193601-9f5f6586bb5b
 	github.com/rancher/rancher/pkg/apis v0.0.0-20240529155832-64dbde013b4c
-	github.com/rancher/rke v1.6.0-rc4
+	github.com/rancher/rke v1.6.0-rc6
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20210727200656-10b094e30007
 	github.com/rancher/wrangler v1.1.1
 	github.com/rancher/wrangler/v2 v2.2.0-rc6
@@ -44,7 +44,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.715
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm v1.0.715
-	golang.org/x/crypto v0.23.0
+	golang.org/x/crypto v0.24.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.29.4
 	k8s.io/apimachinery v0.29.4
@@ -74,8 +74,8 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/cnrancher/ack-operator v0.0.5-0.20231114083454-9eba76c1fd53 // indirect
-	github.com/cnrancher/tke-operator v0.0.0-20231124013843-33386f8dc8fe // indirect
+	github.com/cnrancher/ack-operator v0.0.5-0.20240301031542-f503388fe440 // indirect
+	github.com/cnrancher/tke-operator v0.0.0-20240229091109-62dd98478d65 // indirect
 	github.com/containerd/cgroups v1.1.0 // indirect
 	github.com/containerd/containerd v1.6.27 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
@@ -143,9 +143,9 @@ require (
 	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.11.1 // indirect
-	github.com/rancher/aks-operator v1.9.0-rc.1 // indirect
-	github.com/rancher/eks-operator v1.9.0-rc.1 // indirect
-	github.com/rancher/gke-operator v1.9.0-rc.1 // indirect
+	github.com/rancher/aks-operator v1.9.0-rc.6 // indirect
+	github.com/rancher/eks-operator v1.9.0-rc.5 // indirect
+	github.com/rancher/gke-operator v1.9.0-rc.4 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
@@ -163,14 +163,14 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.25.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/oauth2 v0.20.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/term v0.20.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/term v0.21.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.20.0 // indirect
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231030173426-d783a09b4405 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
