@@ -7,12 +7,15 @@ import (
 	"time"
 
 	"github.com/rancher/norman/types"
+
+	"github.com/sirupsen/logrus"
+
 	"github.com/rancher/shepherd/clients/corral"
 	"github.com/rancher/shepherd/clients/rancher"
-	"github.com/sirupsen/logrus"
 
 	apiv1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
 	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
+
 	v1 "github.com/rancher/shepherd/clients/rancher/v1"
 	"github.com/rancher/shepherd/extensions/cloudcredentials/aws"
 	"github.com/rancher/shepherd/extensions/cloudcredentials/azure"
@@ -25,6 +28,7 @@ import (
 	"github.com/rancher/shepherd/extensions/defaults"
 	"github.com/rancher/shepherd/extensions/etcdsnapshot"
 	k3sHardening "github.com/rancher/shepherd/extensions/hardening/k3s"
+	rke1Hardening "github.com/rancher/shepherd/extensions/hardening/rke1"
 	rke2Hardening "github.com/rancher/shepherd/extensions/hardening/rke2"
 	"github.com/rancher/shepherd/extensions/machinepools"
 	nodestat "github.com/rancher/shepherd/extensions/nodes"
@@ -39,10 +43,11 @@ import (
 	"github.com/rancher/shepherd/pkg/nodes"
 	"github.com/rancher/shepherd/pkg/wait"
 
-	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kwait "k8s.io/apimachinery/pkg/util/wait"
+
+	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
 )
 
 const (
@@ -233,6 +238,15 @@ func CreateProvisioningCustomCluster(client *rancher.Client, externalNodeProvide
 
 	cluster := clusters.NewK3SRKE2ClusterConfig(clusterName, namespace, clustersConfig, nil, "")
 
+	if clustersConfig.Hardened && strings.Contains(clustersConfig.KubernetesVersion, clusters.RKE2ClusterType.String()) {
+		err = rke2Hardening.HardenRKE2Nodes(nodes, rolesPerNode)
+		if err != nil {
+			return nil, err
+		}
+
+		cluster = clusters.HardenRKE2ClusterConfig(clusterName, namespace, clustersConfig, nil, "")
+	}
+
 	clusterResp, err := clusters.CreateK3SRKE2Cluster(client, cluster)
 	if err != nil {
 		return nil, err
@@ -336,29 +350,24 @@ func CreateProvisioningCustomCluster(client *rancher.Client, externalNodeProvide
 	}
 
 	if clustersConfig.Hardened {
-		var hardenCluster *apiv1.Cluster
 		if strings.Contains(clustersConfig.KubernetesVersion, clusters.K3SClusterType.String()) {
-			err = k3sHardening.HardenNodes(nodes, rolesPerNode, clustersConfig.KubernetesVersion)
+			err = k3sHardening.HardenK3SNodes(nodes, rolesPerNode, clustersConfig.KubernetesVersion)
 			if err != nil {
 				return nil, err
 			}
 
-			hardenCluster = clusters.HardenK3SClusterConfig(clusterName, namespace, clustersConfig, nil, "")
+			hardenCluster := clusters.HardenK3SClusterConfig(clusterName, namespace, clustersConfig, nil, "")
+
+			_, err := clusters.UpdateK3SRKE2Cluster(client, clusterResp, hardenCluster)
+			if err != nil {
+				return nil, err
+			}
 		} else {
-			err = rke2Hardening.HardenNodes(nodes, rolesPerNode)
+			err = rke2Hardening.PostRKE2HardeningConfig(nodes, rolesPerNode)
 			if err != nil {
 				return nil, err
 			}
-
-			hardenCluster = clusters.HardenRKE2ClusterConfig(clusterName, namespace, clustersConfig, nil, "")
 		}
-
-		_, err := clusters.UpdateK3SRKE2Cluster(client, clusterResp, hardenCluster)
-		if err != nil {
-			return nil, err
-		}
-
-		logrus.Infof("Cluster has been successfully hardened!")
 	}
 
 	createdCluster, err := client.Steve.
@@ -436,6 +445,16 @@ func CreateProvisioningRKE1CustomCluster(client *rancher.Client, externalNodePro
 	clusterName := namegen.AppendRandomString(externalNodeProvider.Name)
 
 	cluster := clusters.NewRKE1ClusterConfig(clusterName, client, clustersConfig)
+
+	if clustersConfig.Hardened {
+		err = rke1Hardening.HardenRKE1Nodes(nodes, rolesPerPool)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		cluster = clusters.HardenRKE1ClusterConfig(client, clusterName, clustersConfig)
+	}
+
 	clusterResp, err := clusters.CreateRKE1Cluster(client, cluster)
 	if err != nil {
 		return nil, nil, err
@@ -460,6 +479,21 @@ func CreateProvisioningRKE1CustomCluster(client *rancher.Client, externalNodePro
 		return nil, nil, err
 	}
 
+	adminClient, err := rancher.NewClient(client.RancherConfig.AdminToken, client.Session)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	result, err := adminClient.GetManagementWatchInterface(management.ClusterType, metav1.ListOptions{
+		FieldSelector:  "metadata.name=" + customCluster.ID,
+		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	checkFunc := clusters.IsHostedProvisioningClusterReady
+
 	var command string
 	totalNodesObserved := 0
 	for poolIndex, poolRole := range rolesPerPool {
@@ -480,6 +514,18 @@ func CreateProvisioningRKE1CustomCluster(client *rancher.Client, externalNodePro
 			logrus.Infof(output)
 		}
 		totalNodesObserved += int(quantityPerPool[poolIndex])
+	}
+
+	err = wait.WatchWait(result, checkFunc)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if clustersConfig.Hardened {
+		err = rke1Hardening.PostRKE1HardeningConfig(nodes, rolesPerPool)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	createdCluster, err := client.Management.Cluster.ByID(clusterResp.ID)
@@ -657,14 +703,14 @@ func CreateProvisioningRKE1AirgapCustomCluster(client *rancher.Client, clustersC
 }
 
 // CreateProvisioningAKSHostedCluster provisions an AKS cluster, then runs verify checks
-func CreateProvisioningAKSHostedCluster(client *rancher.Client) (*management.Cluster, error) {
+func CreateProvisioningAKSHostedCluster(client *rancher.Client, aksClusterConfig aks.ClusterConfig) (*management.Cluster, error) {
 	cloudCredential, err := azure.CreateAzureCloudCredentials(client)
 	if err != nil {
 		return nil, err
 	}
 
 	clusterName := namegen.AppendRandomString("akshostcluster")
-	clusterResp, err := aks.CreateAKSHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, false, nil)
+	clusterResp, err := aks.CreateAKSHostedCluster(client, clusterName, cloudCredential.ID, aksClusterConfig, false, false, false, false, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -682,14 +728,14 @@ func CreateProvisioningAKSHostedCluster(client *rancher.Client) (*management.Clu
 }
 
 // CreateProvisioningEKSHostedCluster provisions an EKS cluster, then runs verify checks
-func CreateProvisioningEKSHostedCluster(client *rancher.Client) (*management.Cluster, error) {
+func CreateProvisioningEKSHostedCluster(client *rancher.Client, eksClusterConfig eks.ClusterConfig) (*management.Cluster, error) {
 	cloudCredential, err := aws.CreateAWSCloudCredentials(client)
 	if err != nil {
 		return nil, err
 	}
 
 	clusterName := namegen.AppendRandomString("ekshostcluster")
-	clusterResp, err := eks.CreateEKSHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, false, nil)
+	clusterResp, err := eks.CreateEKSHostedCluster(client, clusterName, cloudCredential.ID, eksClusterConfig, false, false, false, false, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -707,14 +753,14 @@ func CreateProvisioningEKSHostedCluster(client *rancher.Client) (*management.Clu
 }
 
 // CreateProvisioningGKEHostedCluster provisions an GKE cluster, then runs verify checks
-func CreateProvisioningGKEHostedCluster(client *rancher.Client) (*management.Cluster, error) {
+func CreateProvisioningGKEHostedCluster(client *rancher.Client, gkeClusterConfig gke.ClusterConfig) (*management.Cluster, error) {
 	cloudCredential, err := google.CreateGoogleCloudCredentials(client)
 	if err != nil {
 		return nil, err
 	}
 
 	clusterName := namegen.AppendRandomString("gkehostcluster")
-	clusterResp, err := gke.CreateGKEHostedCluster(client, clusterName, cloudCredential.ID, false, false, false, false, nil)
+	clusterResp, err := gke.CreateGKEHostedCluster(client, clusterName, cloudCredential.ID, gkeClusterConfig, false, false, false, false, nil)
 	if err != nil {
 		return nil, err
 	}
