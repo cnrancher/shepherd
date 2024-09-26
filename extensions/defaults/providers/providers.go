@@ -8,4 +8,5 @@ const (
 	Linode       = "linode"
 	Google       = "google"
 	Vsphere      = "vsphere"
+	Aliyun       = "aliyun"
 )
