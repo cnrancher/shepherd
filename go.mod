@@ -1,6 +1,6 @@
 module github.com/rancher/shepherd
 
-go 1.21
+go 1.22
 
 replace (
 	github.com/rancher/norman => github.com/cnrancher/pandaria-norman v0.0.0-20240207040250-56e615fc85de
@@ -49,7 +49,6 @@ require (
 	github.com/rancher/wrangler v1.1.1
 	github.com/rancher/wrangler/v2 v2.1.4
 	github.com/spf13/cobra v1.7.0
-	github.com/stretchr/testify v1.8.4
 	golang.org/x/crypto v0.18.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.28.6
@@ -145,7 +144,6 @@ require (
 	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/opencontainers/runc v1.1.9 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_golang v1.16.0 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
