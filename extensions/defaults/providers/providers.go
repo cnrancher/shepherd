@@ -9,4 +9,6 @@ const (
 	Google       = "google"
 	Vsphere      = "vsphere"
 	Aliyun       = "aliyun"
+	Huawei       = "huawei"
+	Tencent      = "tke"
 )
