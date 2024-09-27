@@ -96,6 +96,22 @@ func LoadCloudCredential(provider string) CloudCredential {
 
 		return cloudCredential
 
+	case provider == providers.Huawei:
+		var huaweiCredentialConfig HuaweiCredentialConfig
+
+		config.LoadConfig(HuaweiCredentialConfigurationFileKey, &huaweiCredentialConfig)
+		cloudCredential.HuaweiCredentialConfig = &huaweiCredentialConfig
+
+		return cloudCredential
+		
+	case provider == providers.Tencent:
+		var tkeCredentialConfig TencentCredentialConfig
+
+		config.LoadConfig(TencentCredentialConfigurationFileKey, &tkeCredentialConfig)
+		cloudCredential.TencentCredentialConfig = &tkeCredentialConfig
+
+		return cloudCredential
+
 	default:
 		panic(fmt.Sprintf("Provider:%v not found", provider))
 	}
