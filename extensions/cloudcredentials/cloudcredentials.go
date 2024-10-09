@@ -103,12 +103,20 @@ func LoadCloudCredential(provider string) CloudCredential {
 		cloudCredential.HuaweiCredentialConfig = &huaweiCredentialConfig
 
 		return cloudCredential
-		
+
 	case provider == providers.Tencent:
 		var tkeCredentialConfig TencentCredentialConfig
 
 		config.LoadConfig(TencentCredentialConfigurationFileKey, &tkeCredentialConfig)
 		cloudCredential.TencentCredentialConfig = &tkeCredentialConfig
+
+		return cloudCredential
+
+	case provider == providers.Aliyun:
+		var aliyunECSCredentialConfig AliyunECSCredentialConfig
+
+		config.LoadConfig(AliyunECSCredentialConfigurationFileKey, &aliyunECSCredentialConfig)
+		cloudCredential.AliyunECSCredentialConfig = &aliyunECSCredentialConfig
 
 		return cloudCredential
 

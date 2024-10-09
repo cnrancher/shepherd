@@ -2,7 +2,6 @@ package ack
 
 import (
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
-	"github.com/rancher/shepherd/pkg/config"
 )
 
 const (
@@ -118,9 +117,7 @@ func ackNodePoolConstructor(ackNodePoolConfigs *[]NodePoolInfo) []management.Nod
 	return ackNodePools
 }
 
-func HostClusterConfig(displayName, cloudCredentialID string) *management.ACKClusterConfigSpec {
-	var ackClusterConfig ClusterConfig
-	config.LoadConfig(ACKClusterConfigConfigurationFileKey, &ackClusterConfig)
+func HostClusterConfig(displayName, cloudCredentialID string, ackClusterConfig ClusterConfig) *management.ACKClusterConfigSpec {
 
 	return &management.ACKClusterConfigSpec{
 		Name:                     displayName,
