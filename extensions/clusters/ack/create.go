@@ -6,8 +6,8 @@ import (
 )
 
 // CreateACKHostedCluster is a helper function that creates an ACK hosted cluster.
-func CreateACKHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
-	ackHostCluster := HostClusterConfig(displayName, cloudCredentialID)
+func CreateACKHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, ackClusterConfig ClusterConfig, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
+	ackHostCluster := HostClusterConfig(displayName, cloudCredentialID, ackClusterConfig)
 	cluster := &management.Cluster{
 		ACKConfig:               ackHostCluster,
 		DockerRootDir:           "/var/lib/docker",
