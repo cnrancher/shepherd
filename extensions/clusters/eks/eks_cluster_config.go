@@ -48,6 +48,7 @@ type NodeGroupConfig struct {
 	Subnets              []string              `json:"subnets" yaml:"subnets"`
 	Tags                 map[string]string     `json:"tags" yaml:"tags"`
 	UserData             *string               `json:"userData,omitempty" yaml:"userData,omitempty"`
+	Version              *string               `json:"version,omitempty" yaml:"version,omitempty"`
 }
 
 // LaunchTemplateConfig is the configuration need for a node group launch template
@@ -68,6 +69,12 @@ func nodeGroupsConstructor(nodeGroupsConfig *[]NodeGroupConfig, kubernetesVersio
 				Version: nodeGroupConfig.LaunchTemplateConfig.Version,
 			}
 		}
+		var version *string
+		if nodeGroupConfig.Version != nil {
+			version = nodeGroupConfig.Version
+		} else {
+			version = &kubernetesVersion
+		}
 		nodeGroup := management.NodeGroup{
 			Arm:                  nodeGroupConfig.Arm,
 			DesiredSize:          nodeGroupConfig.DesiredSize,
@@ -76,19 +83,19 @@ func nodeGroupsConstructor(nodeGroupsConfig *[]NodeGroupConfig, kubernetesVersio
 			Gpu:                  nodeGroupConfig.Gpu,
 			ImageID:              nodeGroupConfig.ImageID,
 			InstanceType:         nodeGroupConfig.InstanceType,
-			Labels:               nodeGroupConfig.Labels,
+			Labels:               &nodeGroupConfig.Labels,
 			LaunchTemplate:       launchTemplate,
 			MaxSize:              nodeGroupConfig.MaxSize,
 			MinSize:              nodeGroupConfig.MinSize,
 			NodegroupName:        nodeGroupConfig.NodegroupName,
 			NodeRole:             nodeGroupConfig.NodeRole,
 			RequestSpotInstances: nodeGroupConfig.RequestSpotInstances,
-			ResourceTags:         nodeGroupConfig.ResourceTags,
-			SpotInstanceTypes:    nodeGroupConfig.SpotInstanceTypes,
-			Subnets:              nodeGroupConfig.Subnets,
-			Tags:                 nodeGroupConfig.Tags,
+			ResourceTags:         &nodeGroupConfig.ResourceTags,
+			SpotInstanceTypes:    &nodeGroupConfig.SpotInstanceTypes,
+			Subnets:              &nodeGroupConfig.Subnets,
+			Tags:                 &nodeGroupConfig.Tags,
 			UserData:             nodeGroupConfig.UserData,
-			Version:              &kubernetesVersion,
+			Version:              version,
 		}
 		nodeGroups = append(nodeGroups, nodeGroup)
 	}
@@ -103,16 +110,16 @@ func eksHostClusterConfig(displayName, cloudCredentialID string, eksClusterConfi
 		Imported:               false,
 		KmsKey:                 eksClusterConfig.KmsKey,
 		KubernetesVersion:      eksClusterConfig.KubernetesVersion,
-		LoggingTypes:           eksClusterConfig.LoggingTypes,
+		LoggingTypes:           &eksClusterConfig.LoggingTypes,
 		NodeGroups:             nodeGroupsConstructor(eksClusterConfig.NodeGroupsConfig, *eksClusterConfig.KubernetesVersion),
 		PrivateAccess:          eksClusterConfig.PrivateAccess,
 		PublicAccess:           eksClusterConfig.PublicAccess,
-		PublicAccessSources:    eksClusterConfig.PublicAccessSources,
+		PublicAccessSources:    &eksClusterConfig.PublicAccessSources,
 		Region:                 eksClusterConfig.Region,
 		SecretsEncryption:      eksClusterConfig.SecretsEncryption,
-		SecurityGroups:         eksClusterConfig.SecurityGroups,
+		SecurityGroups:         &eksClusterConfig.SecurityGroups,
 		ServiceRole:            eksClusterConfig.ServiceRole,
-		Subnets:                eksClusterConfig.Subnets,
-		Tags:                   eksClusterConfig.Tags,
+		Subnets:                &eksClusterConfig.Subnets,
+		Tags:                   &eksClusterConfig.Tags,
 	}
 }
