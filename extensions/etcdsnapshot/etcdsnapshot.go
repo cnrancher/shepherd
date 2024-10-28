@@ -1,8 +1,8 @@
 package etcdsnapshot
 
 import (
-	"errors"
-	"fmt"
+	"context"
+	"sort"
 	"strings"
 	"time"
 
@@ -15,10 +15,8 @@ import (
 	"github.com/rancher/shepherd/extensions/clusters"
 	"github.com/rancher/shepherd/extensions/defaults"
 	"github.com/rancher/shepherd/extensions/defaults/stevetypes"
-	"github.com/rancher/shepherd/extensions/kubeapi/nodes"
 	"github.com/sirupsen/logrus"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
+	kwait "k8s.io/apimachinery/pkg/util/wait"
 )
 
 const (
@@ -26,28 +24,8 @@ const (
 	fleetNamespace               = "fleet-default"
 	localClusterName             = "local"
 	active                       = "active"
+	readyStatus                  = "Resource is ready"
 )
-
-func MatchNodeToAnyEtcdRole(client *rancher.Client, clusterID string) (int, *management.Node) {
-	machines, err := client.Management.Node.List(&types.ListOpts{Filters: map[string]interface{}{
-		"clusterId": clusterID,
-	}})
-	if err != nil {
-		return 0, nil
-	}
-
-	numOfNodes := 0
-	lastMatchingNode := &management.Node{}
-
-	for _, machine := range machines.Data {
-		if machine.Etcd {
-			lastMatchingNode = &machine
-			numOfNodes++
-		}
-	}
-
-	return numOfNodes, lastMatchingNode
-}
 
 // GetRKE1Snapshots is a helper function to get the existing snapshots for a downstream RKE1 cluster.
 func GetRKE1Snapshots(client *rancher.Client, clusterName string) ([]management.EtcdBackup, error) {
@@ -73,11 +51,20 @@ func GetRKE1Snapshots(client *rancher.Client, clusterName string) ([]management.
 		}
 	}
 
+	sort.Slice(snapshots, func(i, j int) bool {
+		return snapshots[i].Created > snapshots[j].Created
+	})
+
 	return snapshots, nil
 }
 
 // GetRKE2K3SSnapshots is a helper function to get the existing snapshots for a downstream RKE2/K3S cluster.
-func GetRKE2K3SSnapshots(client *rancher.Client, localclusterID string, clusterName string) ([]rancherv1.SteveAPIObject, error) {
+func GetRKE2K3SSnapshots(client *rancher.Client, clusterName string) ([]rancherv1.SteveAPIObject, error) {
+	localclusterID, err := clusters.GetClusterIDByName(client, localClusterName)
+	if err != nil {
+		return nil, err
+	}
+
 	steveclient, err := client.Steve.ProxyDownstream(localclusterID)
 	if err != nil {
 		return nil, err
@@ -95,6 +82,10 @@ func GetRKE2K3SSnapshots(client *rancher.Client, localclusterID string, clusterN
 			snapshots = append(snapshots, snapshot)
 		}
 	}
+
+	sort.Slice(snapshots, func(i, j int) bool {
+		return snapshots[i].ObjectMeta.CreationTimestamp.Before(&snapshots[j].ObjectMeta.CreationTimestamp)
+	})
 
 	return snapshots, nil
 }
@@ -117,7 +108,7 @@ func CreateRKE1Snapshot(client *rancher.Client, clusterName string) error {
 		return err
 	}
 
-	err = wait.Poll(1*time.Second, defaults.FiveMinuteTimeout, func() (bool, error) {
+	err = kwait.PollUntilContextTimeout(context.TODO(), 5*time.Second, defaults.FiveMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
 		snapshotSteveObjList, err := client.Management.EtcdBackup.ListAll(&types.ListOpts{
 			Filters: map[string]interface{}{
 				"clusterId": clusterID,
@@ -179,7 +170,7 @@ func CreateRKE2K3SSnapshot(client *rancher.Client, clusterName string) error {
 		return err
 	}
 
-	err = wait.Poll(1*time.Second, defaults.FiveMinuteTimeout, func() (bool, error) {
+	err = kwait.PollUntilContextTimeout(context.TODO(), 5*time.Second, defaults.FiveMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
 		snapshotSteveObjList, err := client.Steve.SteveType("rke.cattle.io.etcdsnapshot").List(nil)
 		if err != nil {
 			return false, nil
@@ -212,7 +203,7 @@ func CreateRKE2K3SSnapshot(client *rancher.Client, clusterName string) error {
 }
 
 // RestoreRKE1Snapshot is a helper function to restore a snapshot on an RKE1 cluster. Returns error if any.
-func RestoreRKE1Snapshot(client *rancher.Client, clusterName string, snapshotRestore *management.RestoreFromEtcdBackupInput, initialControlPlaneValue, initialWorkerValue string) error {
+func RestoreRKE1Snapshot(client *rancher.Client, clusterName string, snapshotRestore *management.RestoreFromEtcdBackupInput) error {
 	clusterID, err := clusters.GetClusterIDByName(client, clusterName)
 	if err != nil {
 		return err
@@ -223,24 +214,31 @@ func RestoreRKE1Snapshot(client *rancher.Client, clusterName string, snapshotRes
 		return err
 	}
 
-	updatedCluster := cluster
-
-	updatedCluster.RancherKubernetesEngineConfig.UpgradeStrategy.MaxUnavailableControlplane = initialControlPlaneValue
-	updatedCluster.RancherKubernetesEngineConfig.UpgradeStrategy.MaxUnavailableWorker = initialWorkerValue
-
-	_, err = client.Management.Cluster.Update(cluster, updatedCluster)
-	if err != nil {
-		return err
-	}
-
 	logrus.Infof("Restoring snapshot: %v", snapshotRestore.EtcdBackupID)
 	err = client.Management.Cluster.ActionRestoreFromEtcdBackup(cluster, snapshotRestore)
 	if err != nil {
 		return err
 	}
 
-	err = wait.Poll(1*time.Second, defaults.ThirtyMinuteTimeout, func() (bool, error) {
-		clusterResp, err := client.Management.Cluster.ByID(clusterID)
+	err = kwait.PollUntilContextTimeout(context.TODO(), 1*time.Second, defaults.OneMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
+		clusterResp, err := client.Management.Cluster.ByID(cluster.ID)
+		if err != nil {
+			return false, nil
+		}
+
+		if clusterResp.State != active {
+			return true, nil
+		}
+
+		return false, nil
+	})
+	if err != nil {
+		return err
+	}
+
+	// Timeout is specifically set to 30 minutes due to expected behavior with RKE1 nodes.
+	err = kwait.PollUntilContextTimeout(context.TODO(), 5*time.Second, defaults.ThirtyMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
+		clusterResp, err := client.Management.Cluster.ByID(cluster.ID)
 		if err != nil {
 			return false, nil
 		}
@@ -259,153 +257,63 @@ func RestoreRKE1Snapshot(client *rancher.Client, clusterName string, snapshotRes
 }
 
 // RestoreRKE2K3SSnapshot is a helper function to restore a snapshot on an RKE2 or k3s cluster. Returns error if any.
-func RestoreRKE2K3SSnapshot(client *rancher.Client, clusterName string, snapshotRestore *rkev1.ETCDSnapshotRestore, initialControlPlaneValue, initialWorkerValue string) error {
+func RestoreRKE2K3SSnapshot(client *rancher.Client, snapshotRestore *rkev1.ETCDSnapshotRestore, clusterName string) error {
 	clusterObject, existingSteveAPIObject, err := clusters.GetProvisioningClusterByName(client, clusterName, fleetNamespace)
 	if err != nil {
 		return err
 	}
 
 	clusterObject.Spec.RKEConfig.ETCDSnapshotRestore = snapshotRestore
-	clusterObject.Spec.RKEConfig.UpgradeStrategy.ControlPlaneConcurrency = initialControlPlaneValue
-	clusterObject.Spec.RKEConfig.UpgradeStrategy.WorkerConcurrency = initialWorkerValue
 
 	logrus.Infof("Restoring snapshot: %v", snapshotRestore.Name)
-	_, err = client.Steve.SteveType(ProvisioningSteveResouceType).Update(existingSteveAPIObject, clusterObject)
+	updatedCluster, err := client.Steve.SteveType(ProvisioningSteveResouceType).Update(existingSteveAPIObject, clusterObject)
 	if err != nil {
 		return err
 	}
 
-	return nil
-}
-
-// RKE1RetentionLimitCheck is a check that validates that the number of automatic snapshots on the cluster is under the retention limit
-func RKE1RetentionLimitCheck(client *rancher.Client, clusterName string) error {
-	clusterID, err := clusters.GetClusterIDByName(client, clusterName)
-	if err != nil {
-		return err
-	}
-
-	clusterResp, err := client.Management.Cluster.ByID(clusterID)
-	if err != nil {
-		return err
-	}
-
-	retentionLimit := clusterResp.RancherKubernetesEngineConfig.Services.Etcd.BackupConfig.Retention
-	s3Config := clusterResp.RancherKubernetesEngineConfig.Services.Etcd.BackupConfig.S3BackupConfig
-
-	isS3 := false
-	if s3Config != nil {
-		isS3 = true
-	}
-
-	existingSnapshots, err := GetRKE1Snapshots(client, clusterName)
-	if err != nil {
-		return err
-	}
-
-	automaticSnapshots := []management.EtcdBackup{}
-
-	for _, snapshot := range existingSnapshots {
-		if !snapshot.Manual {
-			automaticSnapshots = append(automaticSnapshots, snapshot)
+	err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.OneMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
+		clusterResp, err := client.Steve.SteveType(ProvisioningSteveResouceType).ByID(updatedCluster.ID)
+		if err != nil {
+			return false, err
 		}
-	}
 
-	listOpts := metav1.ListOptions{LabelSelector: "node-role.kubernetes.io/etcd=true"}
-	etcdNodes, err := nodes.GetNodes(client, clusterID, listOpts)
-	if err != nil {
-		return err
-	}
-
-	expectedSnapshotsNum := int(retentionLimit) * len(etcdNodes)
-	if isS3 {
-		expectedSnapshotsNum = expectedSnapshotsNum * 2
-	}
-
-	if len(automaticSnapshots) > expectedSnapshotsNum {
-		errMsg := fmt.Sprintf("retention limit exceeded: expected %d snapshots, found %d snapshots",
-			expectedSnapshotsNum, len(automaticSnapshots))
-
-		return errors.New(errMsg)
-	}
-
-	logrus.Infof("Snapshot retention limit respected, Snapshots Expected: %v Snapshots Found: %v",
-		expectedSnapshotsNum, len(automaticSnapshots))
-
-	return nil
-}
-
-// RKE2K3SRetentionLimitCheck is a check that validates that the number of automatic snapshots
-// on the cluster is under the retention limit.
-func RKE2K3SRetentionLimitCheck(client *rancher.Client, clusterName string) error {
-	v1ClusterID, err := clusters.GetV1ProvisioningClusterByName(client, clusterName)
-	if err != nil {
-		return err
-	}
-
-	clusterObj, err := client.Steve.SteveType(stevetypes.Provisioning).ByID(v1ClusterID)
-	if err != nil {
-		return err
-	}
-
-	spec := apisV1.ClusterSpec{}
-	err = rancherv1.ConvertToK8sType(clusterObj.Spec, &spec)
-	if err != nil {
-		return err
-	}
-
-	etcdConfig := spec.RKEConfig.ETCD
-	retentionLimit := etcdConfig.SnapshotRetention
-
-	isS3 := false
-	if etcdConfig.S3 != nil {
-		isS3 = true
-	}
-
-	localClusterID, err := clusters.GetClusterIDByName(client, localClusterName)
-	if err != nil {
-		return err
-	}
-
-	existingSnapshots, err := GetRKE2K3SSnapshots(client, localClusterID, clusterName)
-	if err != nil {
-		return err
-	}
-
-	automaticSnapshots := []rancherv1.SteveAPIObject{}
-
-	for _, snapshot := range existingSnapshots {
-		if strings.Contains(snapshot.Annotations["etcdsnapshot.rke.io/snapshot-file-name"], "etcd-snapshot") {
-			automaticSnapshots = append(automaticSnapshots, snapshot)
+		clusterStatus := &apisV1.ClusterStatus{}
+		err = rancherv1.ConvertToK8sType(clusterResp.Status, clusterStatus)
+		if err != nil {
+			return false, err
 		}
-	}
 
-	downstreamClusterID, err := clusters.GetClusterIDByName(client, clusterName)
+		if clusterResp.ObjectMeta.State.Name != active {
+			return true, nil
+		}
+
+		return false, nil
+	})
 	if err != nil {
 		return err
 	}
 
-	listOpts := metav1.ListOptions{LabelSelector: "node-role.kubernetes.io/etcd=true"}
-	etcdNodes, err := nodes.GetNodes(client, downstreamClusterID, listOpts)
+	err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.FifteenMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
+		clusterResp, err := client.Steve.SteveType(ProvisioningSteveResouceType).ByID(updatedCluster.ID)
+		if err != nil {
+			return false, err
+		}
+
+		clusterStatus := &apisV1.ClusterStatus{}
+		err = rancherv1.ConvertToK8sType(clusterResp.Status, clusterStatus)
+		if err != nil {
+			return false, err
+		}
+
+		if clusterResp.ObjectMeta.State.Name == active {
+			return true, nil
+		}
+
+		return false, nil
+	})
 	if err != nil {
 		return err
 	}
-
-	expectedSnapshotsNum := int(retentionLimit) * len(etcdNodes)
-	if isS3 {
-		expectedSnapshotsNum = expectedSnapshotsNum * 2
-	}
-
-	if len(automaticSnapshots) > expectedSnapshotsNum {
-		msg := fmt.Sprintf(
-			"retention limit exceeded: expected %d snapshots, found %d snapshots",
-			expectedSnapshotsNum, len(automaticSnapshots))
-
-		return errors.New(msg)
-	}
-
-	logrus.Infof("Snapshot retention limit respected, Snapshots Expected: %v Snapshots Found: %v",
-		expectedSnapshotsNum, len(automaticSnapshots))
 
 	return nil
 }

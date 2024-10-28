@@ -2,7 +2,6 @@ package eks
 
 import (
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
-	"github.com/rancher/shepherd/pkg/config"
 )
 
 const (
@@ -47,6 +46,7 @@ type NodeGroupConfig struct {
 	Subnets              []string              `json:"subnets" yaml:"subnets"`
 	Tags                 map[string]string     `json:"tags" yaml:"tags"`
 	UserData             *string               `json:"userData,omitempty" yaml:"userData,omitempty"`
+	Version              *string               `json:"version,omitempty" yaml:"version,omitempty"`
 }
 
 // LaunchTemplateConfig is the configuration need for a node group launch template
@@ -64,6 +64,12 @@ func nodeGroupsConstructor(nodeGroupsConfig *[]NodeGroupConfig, kubernetesVersio
 				Name:    nodeGroupConfig.LaunchTemplateConfig.Name,
 				Version: nodeGroupConfig.LaunchTemplateConfig.Version,
 			}
+		}
+		var version *string
+		if nodeGroupConfig.Version != nil {
+			version = nodeGroupConfig.Version
+		} else {
+			version = &kubernetesVersion
 		}
 		nodeGroup := management.NodeGroup{
 			DesiredSize:          nodeGroupConfig.DesiredSize,
@@ -84,17 +90,14 @@ func nodeGroupsConstructor(nodeGroupsConfig *[]NodeGroupConfig, kubernetesVersio
 			Subnets:              &nodeGroupConfig.Subnets,
 			Tags:                 &nodeGroupConfig.Tags,
 			UserData:             nodeGroupConfig.UserData,
-			Version:              &kubernetesVersion,
+			Version:              version,
 		}
 		nodeGroups = append(nodeGroups, nodeGroup)
 	}
 	return nodeGroups
 }
 
-func eksHostClusterConfig(displayName, cloudCredentialID string) *management.EKSClusterConfigSpec {
-	var eksClusterConfig ClusterConfig
-	config.LoadConfig(EKSClusterConfigConfigurationFileKey, &eksClusterConfig)
-
+func eksHostClusterConfig(displayName, cloudCredentialID string, eksClusterConfig ClusterConfig) *management.EKSClusterConfigSpec {
 	return &management.EKSClusterConfigSpec{
 		AmazonCredentialSecret: cloudCredentialID,
 		DisplayName:            displayName,
