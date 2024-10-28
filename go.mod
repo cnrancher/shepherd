@@ -27,7 +27,6 @@ require (
 	github.com/hashicorp/terraform-exec v0.18.1
 	github.com/hashicorp/terraform-json v0.17.1
 	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.84
-	github.com/imdario/mergo v0.3.15
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.52.0
@@ -44,7 +43,6 @@ require (
 	github.com/rancher/wrangler v1.1.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0
-	github.com/stretchr/testify v1.8.4
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.612
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm v1.0.612
 	golang.org/x/crypto v0.18.0

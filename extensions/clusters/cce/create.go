@@ -45,7 +45,7 @@ func CreateCCEHostedCluster(client *rancher.Client, displayName, cloudCredential
 }
 
 // UpdateNodePublicIP ensures the node has one public IP address.
-func UpdateNodePublicIP(client *rancher.Client, ID string, cloudCredential *cloudcredentials.CloudCredential) (bool, error) {
+func UpdateNodePublicIP(client *rancher.Client, ID string) (bool, error) {
 	cluster, err := client.Management.Cluster.ByID(ID)
 	if err != nil {
 		return false, err

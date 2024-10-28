@@ -96,6 +96,12 @@ func LoadCloudCredential(provider string) CloudCredential {
 
 		return cloudCredential
 
+	case provider == providers.Aliyun:
+		var aliyunECSCredentialConfig AliyunECSCredentialConfig
+		config.LoadConfig(AliyunECSCredentialConfigurationFileKey, &aliyunECSCredentialConfig)
+		cloudCredential.AliyunECSCredentialConfig = &aliyunECSCredentialConfig
+		return cloudCredential
+
 	default:
 		panic(fmt.Sprintf("Provider:%v not found", provider))
 	}
