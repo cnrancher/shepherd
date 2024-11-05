@@ -19,6 +19,7 @@ replace (
 
 require (
 	github.com/Masterminds/semver/v3 v3.2.1
+	github.com/aliyun/alibaba-cloud-sdk-go v1.62.591
 	github.com/aws/aws-sdk-go v1.50.38
 	github.com/cnrancher/cce-operator v0.4.6
 	github.com/creasty/defaults v1.5.2
@@ -140,6 +141,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2.0.20221005185240-3a7f492d3f1b // indirect
 	github.com/opencontainers/runc v1.1.12 // indirect
+	github.com/opentracing/opentracing-go v1.2.1-0.20220228012449-10b1cf09e00b // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/prometheus/client_golang v1.18.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
