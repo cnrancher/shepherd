@@ -11,6 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/httperror"
+	"github.com/rancher/shepherd/clients/aliyun"
 	"github.com/rancher/shepherd/clients/cvm"
 	frameworkDynamic "github.com/rancher/shepherd/clients/dynamic"
 	"github.com/rancher/shepherd/clients/ec2"
@@ -311,6 +312,11 @@ func (c *Client) GetCVMClient() (*cvm.Client, error) {
 // GetHuaweiClient is a helper function that instantiates a hwcloud ecs client to communicate with the ecs instances on hwcloud.
 func (c *Client) GetHuaweiClient() (*huawei.Client, error) {
 	return huawei.NewClient()
+}
+
+// GetAliYunClient is a helper function that instantiates a aliyun ecs client to communicate with the ecs instances on aliyun.
+func (c *Client) GetAliYunClient() (*aliyun.ECSClient, error) {
+	return aliyun.NewECSClient()
 }
 
 // GetManagementWatchInterface is a functions used to get a watch.Interface from a resource created by the Management Client.
