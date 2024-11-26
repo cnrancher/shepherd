@@ -24,14 +24,12 @@ func updateNodePoolQuantity(client *rancher.Client, cluster *management.Cluster,
 	tkeConfig.NodePoolList[0].AutoScalingGroupPara.DesiredCapacity += nodePool.AutoScalingGroupPara.DesiredCapacity
 
 	tkeHostCluster := &management.Cluster{
-		DockerRootDir:           "/var/lib/docker",
-		TKEConfig:               tkeConfig,
-		EnableClusterAlerting:   clusterResp.EnableClusterAlerting,
-		EnableClusterMonitoring: clusterResp.EnableClusterMonitoring,
-		EnableNetworkPolicy:     clusterResp.EnableNetworkPolicy,
-		Labels:                  clusterResp.Labels,
-		Name:                    clusterResp.Name,
-		WindowsPreferedCluster:  clusterResp.WindowsPreferedCluster,
+		DockerRootDir:          "/var/lib/docker",
+		TKEConfig:              tkeConfig,
+		EnableNetworkPolicy:    clusterResp.EnableNetworkPolicy,
+		Labels:                 clusterResp.Labels,
+		Name:                   clusterResp.Name,
+		WindowsPreferedCluster: clusterResp.WindowsPreferedCluster,
 	}
 
 	logrus.Infof("Scaling the node pool to %v total nodes", tkeConfig.NodePoolList[0].AutoScalingGroupPara.DesiredCapacity)

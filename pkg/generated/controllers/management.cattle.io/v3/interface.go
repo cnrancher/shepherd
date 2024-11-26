@@ -38,6 +38,7 @@ type Interface interface {
 	AuthProvider() AuthProviderController
 	AuthToken() AuthTokenController
 	AzureADProvider() AzureADProviderController
+	CASProvider() CASProviderController
 	Catalog() CatalogController
 	CatalogTemplate() CatalogTemplateController
 	CatalogTemplateVersion() CatalogTemplateVersionController
@@ -58,6 +59,8 @@ type Interface interface {
 	FreeIpaProvider() FreeIpaProviderController
 	GenericOIDCProvider() GenericOIDCProviderController
 	GithubProvider() GithubProviderController
+	GlobalDns() GlobalDnsController
+	GlobalDnsProvider() GlobalDnsProviderController
 	GlobalRole() GlobalRoleController
 	GlobalRoleBinding() GlobalRoleBindingController
 	GoogleOAuthProvider() GoogleOAuthProviderController
@@ -74,6 +77,7 @@ type Interface interface {
 	NodeTemplate() NodeTemplateController
 	OIDCProvider() OIDCProviderController
 	OpenLdapProvider() OpenLdapProviderController
+	OperatorSetting() OperatorSettingController
 	PodSecurityAdmissionConfigurationTemplate() PodSecurityAdmissionConfigurationTemplateController
 	Preference() PreferenceController
 	Principal() PrincipalController
@@ -81,6 +85,7 @@ type Interface interface {
 	ProjectCatalog() ProjectCatalogController
 	ProjectLogging() ProjectLoggingController
 	ProjectNetworkPolicy() ProjectNetworkPolicyController
+	ProjectResourceQuotaUsage() ProjectResourceQuotaUsageController
 	ProjectRoleTemplateBinding() ProjectRoleTemplateBindingController
 	RancherUserNotification() RancherUserNotificationController
 	RkeAddon() RkeAddonController
@@ -132,6 +137,10 @@ func (v *version) AuthToken() AuthTokenController {
 
 func (v *version) AzureADProvider() AzureADProviderController {
 	return generic.NewNonNamespacedController[*v3.AzureADProvider, *v3.AzureADProviderList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "AzureADProvider"}, "azureadproviders", v.controllerFactory, v.ts)
+}
+
+func (v *version) CASProvider() CASProviderController {
+	return generic.NewNonNamespacedController[*v3.CASProvider, *v3.CASProviderList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "CASProvider"}, "casproviders", v.controllerFactory, v.ts)
 }
 
 func (v *version) Catalog() CatalogController {
@@ -214,6 +223,14 @@ func (v *version) GithubProvider() GithubProviderController {
 	return generic.NewNonNamespacedController[*v3.GithubProvider, *v3.GithubProviderList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "GithubProvider"}, "githubproviders", v.controllerFactory, v.ts)
 }
 
+func (v *version) GlobalDns() GlobalDnsController {
+	return generic.NewController[*v3.GlobalDns, *v3.GlobalDnsList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "GlobalDns"}, "globaldnses", true, v.controllerFactory, v.ts)
+}
+
+func (v *version) GlobalDnsProvider() GlobalDnsProviderController {
+	return generic.NewController[*v3.GlobalDnsProvider, *v3.GlobalDnsProviderList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "GlobalDnsProvider"}, "globaldnsproviders", true, v.controllerFactory, v.ts)
+}
+
 func (v *version) GlobalRole() GlobalRoleController {
 	return generic.NewNonNamespacedController[*v3.GlobalRole, *v3.GlobalRoleList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "GlobalRole"}, "globalroles", v.controllerFactory, v.ts)
 }
@@ -278,6 +295,10 @@ func (v *version) OpenLdapProvider() OpenLdapProviderController {
 	return generic.NewNonNamespacedController[*v3.OpenLdapProvider, *v3.OpenLdapProviderList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "OpenLdapProvider"}, "openldapproviders", v.controllerFactory, v.ts)
 }
 
+func (v *version) OperatorSetting() OperatorSettingController {
+	return generic.NewNonNamespacedController[*v3.OperatorSetting, *v3.OperatorSettingList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "OperatorSetting"}, "operatorsettings", v.controllerFactory, v.ts)
+}
+
 func (v *version) PodSecurityAdmissionConfigurationTemplate() PodSecurityAdmissionConfigurationTemplateController {
 	return generic.NewNonNamespacedController[*v3.PodSecurityAdmissionConfigurationTemplate, *v3.PodSecurityAdmissionConfigurationTemplateList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "PodSecurityAdmissionConfigurationTemplate"}, "podsecurityadmissionconfigurationtemplates", v.controllerFactory, v.ts)
 }
@@ -304,6 +325,10 @@ func (v *version) ProjectLogging() ProjectLoggingController {
 
 func (v *version) ProjectNetworkPolicy() ProjectNetworkPolicyController {
 	return generic.NewController[*v3.ProjectNetworkPolicy, *v3.ProjectNetworkPolicyList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ProjectNetworkPolicy"}, "projectnetworkpolicies", true, v.controllerFactory, v.ts)
+}
+
+func (v *version) ProjectResourceQuotaUsage() ProjectResourceQuotaUsageController {
+	return generic.NewController[*v3.ProjectResourceQuotaUsage, *v3.ProjectResourceQuotaUsageList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "ProjectResourceQuotaUsage"}, "projectresourcequotausages", true, v.controllerFactory, v.ts)
 }
 
 func (v *version) ProjectRoleTemplateBinding() ProjectRoleTemplateBindingController {

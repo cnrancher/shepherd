@@ -23,8 +23,6 @@ const (
 	ClusterSpecFieldDisplayName                                          = "displayName"
 	ClusterSpecFieldDockerRootDir                                        = "dockerRootDir"
 	ClusterSpecFieldEKSConfig                                            = "eksConfig"
-	ClusterSpecFieldEnableClusterAlerting                                = "enableClusterAlerting"
-	ClusterSpecFieldEnableClusterMonitoring                              = "enableClusterMonitoring"
 	ClusterSpecFieldEnableGPUManagement                                  = "enableGPUManagement"
 	ClusterSpecFieldEnableNetworkPolicy                                  = "enableNetworkPolicy"
 	ClusterSpecFieldExternalFlags                                        = "externalFlags"
@@ -67,8 +65,6 @@ type ClusterSpec struct {
 	DisplayName                                          string                         `json:"displayName,omitempty" yaml:"displayName,omitempty"`
 	DockerRootDir                                        string                         `json:"dockerRootDir,omitempty" yaml:"dockerRootDir,omitempty"`
 	EKSConfig                                            *EKSClusterConfigSpec          `json:"eksConfig,omitempty" yaml:"eksConfig,omitempty"`
-	EnableClusterAlerting                                bool                           `json:"enableClusterAlerting,omitempty" yaml:"enableClusterAlerting,omitempty"`
-	EnableClusterMonitoring                              bool                           `json:"enableClusterMonitoring,omitempty" yaml:"enableClusterMonitoring,omitempty"`
 	EnableGPUManagement                                  bool                           `json:"enableGPUManagement,omitempty" yaml:"enableGPUManagement,omitempty"`
 	EnableNetworkPolicy                                  *bool                          `json:"enableNetworkPolicy,omitempty" yaml:"enableNetworkPolicy,omitempty"`
 	ExternalFlags                                        *ExternalFlags                 `json:"externalFlags,omitempty" yaml:"externalFlags,omitempty"`

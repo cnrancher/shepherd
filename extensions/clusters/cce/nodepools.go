@@ -24,14 +24,12 @@ func updateNodePoolQuantity(client *rancher.Client, cluster *management.Cluster,
 	cceConfig.NodePools[0].InitialNodeCount += nodePool.InitialNodeCount
 
 	cceHostCluster := &management.Cluster{
-		DockerRootDir:           "/var/lib/docker",
-		CCEConfig:               cceConfig,
-		EnableClusterAlerting:   clusterResp.EnableClusterAlerting,
-		EnableClusterMonitoring: clusterResp.EnableClusterMonitoring,
-		EnableNetworkPolicy:     clusterResp.EnableNetworkPolicy,
-		Labels:                  clusterResp.Labels,
-		Name:                    clusterResp.Name,
-		WindowsPreferedCluster:  clusterResp.WindowsPreferedCluster,
+		DockerRootDir:          "/var/lib/docker",
+		CCEConfig:              cceConfig,
+		EnableNetworkPolicy:    clusterResp.EnableNetworkPolicy,
+		Labels:                 clusterResp.Labels,
+		Name:                   clusterResp.Name,
+		WindowsPreferedCluster: clusterResp.WindowsPreferedCluster,
 	}
 
 	logrus.Infof("Scaling the node pool to %v total nodes", cceConfig.NodePools[0].InitialNodeCount)

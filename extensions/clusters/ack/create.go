@@ -9,14 +9,12 @@ import (
 func CreateACKHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, ackClusterConfig ClusterConfig, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
 	ackHostCluster := HostClusterConfig(displayName, cloudCredentialID, ackClusterConfig)
 	cluster := &management.Cluster{
-		ACKConfig:               ackHostCluster,
-		DockerRootDir:           "/var/lib/docker",
-		EnableClusterAlerting:   enableClusterAlerting,
-		EnableClusterMonitoring: enableClusterMonitoring,
-		EnableNetworkPolicy:     &enableNetworkPolicy,
-		Labels:                  labels,
-		Name:                    displayName,
-		WindowsPreferedCluster:  windowsPreferedCluster,
+		ACKConfig:              ackHostCluster,
+		DockerRootDir:          "/var/lib/docker",
+		EnableNetworkPolicy:    &enableNetworkPolicy,
+		Labels:                 labels,
+		Name:                   displayName,
+		WindowsPreferedCluster: windowsPreferedCluster,
 	}
 
 	clusterResp, err := client.Management.Cluster.Create(cluster)

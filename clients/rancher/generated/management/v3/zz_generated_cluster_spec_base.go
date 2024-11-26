@@ -11,8 +11,6 @@ const (
 	ClusterSpecBaseFieldDesiredAgentImage                                    = "desiredAgentImage"
 	ClusterSpecBaseFieldDesiredAuthImage                                     = "desiredAuthImage"
 	ClusterSpecBaseFieldDockerRootDir                                        = "dockerRootDir"
-	ClusterSpecBaseFieldEnableClusterAlerting                                = "enableClusterAlerting"
-	ClusterSpecBaseFieldEnableClusterMonitoring                              = "enableClusterMonitoring"
 	ClusterSpecBaseFieldEnableGPUManagement                                  = "enableGPUManagement"
 	ClusterSpecBaseFieldEnableNetworkPolicy                                  = "enableNetworkPolicy"
 	ClusterSpecBaseFieldFleetAgentDeploymentCustomization                    = "fleetAgentDeploymentCustomization"
@@ -33,8 +31,6 @@ type ClusterSpecBase struct {
 	DesiredAgentImage                                    string                         `json:"desiredAgentImage,omitempty" yaml:"desiredAgentImage,omitempty"`
 	DesiredAuthImage                                     string                         `json:"desiredAuthImage,omitempty" yaml:"desiredAuthImage,omitempty"`
 	DockerRootDir                                        string                         `json:"dockerRootDir,omitempty" yaml:"dockerRootDir,omitempty"`
-	EnableClusterAlerting                                bool                           `json:"enableClusterAlerting,omitempty" yaml:"enableClusterAlerting,omitempty"`
-	EnableClusterMonitoring                              bool                           `json:"enableClusterMonitoring,omitempty" yaml:"enableClusterMonitoring,omitempty"`
 	EnableGPUManagement                                  bool                           `json:"enableGPUManagement,omitempty" yaml:"enableGPUManagement,omitempty"`
 	EnableNetworkPolicy                                  *bool                          `json:"enableNetworkPolicy,omitempty" yaml:"enableNetworkPolicy,omitempty"`
 	FleetAgentDeploymentCustomization                    *AgentDeploymentCustomization  `json:"fleetAgentDeploymentCustomization,omitempty" yaml:"fleetAgentDeploymentCustomization,omitempty"`

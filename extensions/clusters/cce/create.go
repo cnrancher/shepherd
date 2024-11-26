@@ -27,14 +27,12 @@ import (
 func CreateCCEHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
 	cceHostCluster := HostClusterConfig(displayName, cloudCredentialID)
 	cluster := &management.Cluster{
-		DockerRootDir:           "/var/lib/docker",
-		CCEConfig:               cceHostCluster,
-		Name:                    displayName,
-		EnableClusterAlerting:   enableClusterAlerting,
-		EnableClusterMonitoring: enableClusterMonitoring,
-		EnableNetworkPolicy:     &enableNetworkPolicy,
-		Labels:                  labels,
-		WindowsPreferedCluster:  windowsPreferedCluster,
+		DockerRootDir:          "/var/lib/docker",
+		CCEConfig:              cceHostCluster,
+		Name:                   displayName,
+		EnableNetworkPolicy:    &enableNetworkPolicy,
+		Labels:                 labels,
+		WindowsPreferedCluster: windowsPreferedCluster,
 	}
 
 	clusterResp, err := client.Management.Cluster.Create(cluster)
@@ -165,7 +163,7 @@ func UpdateNodePublicIP(client *rancher.Client, ID string) (bool, error) {
 		}
 		logrus.Infof("successfully bind EIP [%v] for node [%v]",
 			eipAddr, utils.Value(node.Metadata.Name))
-		time.Sleep(5 * time.Second)
+		<-time.After(3 * time.Second)
 		count++
 	}
 	if count == len(*nodesRes.Items) {

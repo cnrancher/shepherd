@@ -9,14 +9,12 @@ import (
 func CreateTKEHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
 	tkeHostCluster := HostClusterConfig(displayName, cloudCredentialID)
 	cluster := &management.Cluster{
-		DockerRootDir:           "/var/lib/docker",
-		TKEConfig:               tkeHostCluster,
-		Name:                    displayName,
-		EnableClusterAlerting:   enableClusterAlerting,
-		EnableClusterMonitoring: enableClusterMonitoring,
-		EnableNetworkPolicy:     &enableNetworkPolicy,
-		Labels:                  labels,
-		WindowsPreferedCluster:  windowsPreferedCluster,
+		DockerRootDir:          "/var/lib/docker",
+		TKEConfig:              tkeHostCluster,
+		Name:                   displayName,
+		EnableNetworkPolicy:    &enableNetworkPolicy,
+		Labels:                 labels,
+		WindowsPreferedCluster: windowsPreferedCluster,
 	}
 
 	clusterResp, err := client.Management.Cluster.Create(cluster)
