@@ -21,6 +21,7 @@ const (
 	ActiveDirectoryConfigFieldGroupSearchFilter            = "groupSearchFilter"
 	ActiveDirectoryConfigFieldGroupUniqueIDAttribute       = "groupUniqueIdAttribute"
 	ActiveDirectoryConfigFieldLabels                       = "labels"
+	ActiveDirectoryConfigFieldLogoutAllSupported           = "logoutAllSupported"
 	ActiveDirectoryConfigFieldName                         = "name"
 	ActiveDirectoryConfigFieldNestedGroupMembershipEnabled = "nestedGroupMembershipEnabled"
 	ActiveDirectoryConfigFieldOwnerReferences              = "ownerReferences"
@@ -65,6 +66,7 @@ type ActiveDirectoryConfig struct {
 	GroupSearchFilter            string            `json:"groupSearchFilter,omitempty" yaml:"groupSearchFilter,omitempty"`
 	GroupUniqueIDAttribute       string            `json:"groupUniqueIdAttribute,omitempty" yaml:"groupUniqueIdAttribute,omitempty"`
 	Labels                       map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	LogoutAllSupported           bool              `json:"logoutAllSupported,omitempty" yaml:"logoutAllSupported,omitempty"`
 	Name                         string            `json:"name,omitempty" yaml:"name,omitempty"`
 	NestedGroupMembershipEnabled *bool             `json:"nestedGroupMembershipEnabled,omitempty" yaml:"nestedGroupMembershipEnabled,omitempty"`
 	OwnerReferences              []OwnerReference  `json:"ownerReferences,omitempty" yaml:"ownerReferences,omitempty"`

@@ -20,6 +20,7 @@ const (
 	FreeIpaConfigFieldGroupSearchFilter               = "groupSearchFilter"
 	FreeIpaConfigFieldGroupUniqueIDAttribute          = "groupUniqueIdAttribute"
 	FreeIpaConfigFieldLabels                          = "labels"
+	FreeIpaConfigFieldLogoutAllSupported              = "logoutAllSupported"
 	FreeIpaConfigFieldName                            = "name"
 	FreeIpaConfigFieldOwnerReferences                 = "ownerReferences"
 	FreeIpaConfigFieldPort                            = "port"
@@ -63,6 +64,7 @@ type FreeIpaConfig struct {
 	GroupSearchFilter               string            `json:"groupSearchFilter,omitempty" yaml:"groupSearchFilter,omitempty"`
 	GroupUniqueIDAttribute          string            `json:"groupUniqueIdAttribute,omitempty" yaml:"groupUniqueIdAttribute,omitempty"`
 	Labels                          map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	LogoutAllSupported              bool              `json:"logoutAllSupported,omitempty" yaml:"logoutAllSupported,omitempty"`
 	Name                            string            `json:"name,omitempty" yaml:"name,omitempty"`
 	OwnerReferences                 []OwnerReference  `json:"ownerReferences,omitempty" yaml:"ownerReferences,omitempty"`
 	Port                            int64             `json:"port,omitempty" yaml:"port,omitempty"`

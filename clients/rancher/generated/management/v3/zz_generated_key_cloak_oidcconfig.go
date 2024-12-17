@@ -3,6 +3,7 @@ package client
 const (
 	KeyCloakOIDCConfigType                     = "keyCloakOIDCConfig"
 	KeyCloakOIDCConfigFieldAccessMode          = "accessMode"
+	KeyCloakOIDCConfigFieldAcrValue            = "acrValue"
 	KeyCloakOIDCConfigFieldAllowedPrincipalIDs = "allowedPrincipalIds"
 	KeyCloakOIDCConfigFieldAnnotations         = "annotations"
 	KeyCloakOIDCConfigFieldAuthEndpoint        = "authEndpoint"
@@ -17,6 +18,7 @@ const (
 	KeyCloakOIDCConfigFieldIssuer              = "issuer"
 	KeyCloakOIDCConfigFieldJWKSUrl             = "jwksUrl"
 	KeyCloakOIDCConfigFieldLabels              = "labels"
+	KeyCloakOIDCConfigFieldLogoutAllSupported  = "logoutAllSupported"
 	KeyCloakOIDCConfigFieldName                = "name"
 	KeyCloakOIDCConfigFieldOwnerReferences     = "ownerReferences"
 	KeyCloakOIDCConfigFieldPrivateKey          = "privateKey"
@@ -32,6 +34,7 @@ const (
 
 type KeyCloakOIDCConfig struct {
 	AccessMode          string            `json:"accessMode,omitempty" yaml:"accessMode,omitempty"`
+	AcrValue            string            `json:"acrValue,omitempty" yaml:"acrValue,omitempty"`
 	AllowedPrincipalIDs []string          `json:"allowedPrincipalIds,omitempty" yaml:"allowedPrincipalIds,omitempty"`
 	Annotations         map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 	AuthEndpoint        string            `json:"authEndpoint,omitempty" yaml:"authEndpoint,omitempty"`
@@ -46,6 +49,7 @@ type KeyCloakOIDCConfig struct {
 	Issuer              string            `json:"issuer,omitempty" yaml:"issuer,omitempty"`
 	JWKSUrl             string            `json:"jwksUrl,omitempty" yaml:"jwksUrl,omitempty"`
 	Labels              map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	LogoutAllSupported  bool              `json:"logoutAllSupported,omitempty" yaml:"logoutAllSupported,omitempty"`
 	Name                string            `json:"name,omitempty" yaml:"name,omitempty"`
 	OwnerReferences     []OwnerReference  `json:"ownerReferences,omitempty" yaml:"ownerReferences,omitempty"`
 	PrivateKey          string            `json:"privateKey,omitempty" yaml:"privateKey,omitempty"`

@@ -20,6 +20,7 @@ const (
 	OpenLdapConfigFieldGroupSearchFilter               = "groupSearchFilter"
 	OpenLdapConfigFieldGroupUniqueIDAttribute          = "groupUniqueIdAttribute"
 	OpenLdapConfigFieldLabels                          = "labels"
+	OpenLdapConfigFieldLogoutAllSupported              = "logoutAllSupported"
 	OpenLdapConfigFieldName                            = "name"
 	OpenLdapConfigFieldNestedGroupMembershipEnabled    = "nestedGroupMembershipEnabled"
 	OpenLdapConfigFieldOwnerReferences                 = "ownerReferences"
@@ -64,6 +65,7 @@ type OpenLdapConfig struct {
 	GroupSearchFilter               string            `json:"groupSearchFilter,omitempty" yaml:"groupSearchFilter,omitempty"`
 	GroupUniqueIDAttribute          string            `json:"groupUniqueIdAttribute,omitempty" yaml:"groupUniqueIdAttribute,omitempty"`
 	Labels                          map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	LogoutAllSupported              bool              `json:"logoutAllSupported,omitempty" yaml:"logoutAllSupported,omitempty"`
 	Name                            string            `json:"name,omitempty" yaml:"name,omitempty"`
 	NestedGroupMembershipEnabled    bool              `json:"nestedGroupMembershipEnabled,omitempty" yaml:"nestedGroupMembershipEnabled,omitempty"`
 	OwnerReferences                 []OwnerReference  `json:"ownerReferences,omitempty" yaml:"ownerReferences,omitempty"`

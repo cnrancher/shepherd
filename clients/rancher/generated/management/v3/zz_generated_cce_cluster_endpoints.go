@@ -3,10 +3,10 @@ package client
 const (
 	CCEClusterEndpointsType      = "cceClusterEndpoints"
 	CCEClusterEndpointsFieldType = "type"
-	CCEClusterEndpointsFieldUrl  = "url"
+	CCEClusterEndpointsFieldURL  = "url"
 )
 
 type CCEClusterEndpoints struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
-	Url  string `json:"url,omitempty" yaml:"url,omitempty"`
+	URL  string `json:"url,omitempty" yaml:"url,omitempty"`
 }
