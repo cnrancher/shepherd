@@ -21,7 +21,7 @@ replace (
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.0
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.591
+	github.com/aliyun/alibaba-cloud-sdk-go v1.63.88
 	github.com/aws/aws-sdk-go v1.50.38
 	github.com/cnrancher/cce-operator v0.6.0-beta.1
 	github.com/creasty/defaults v1.5.2
@@ -80,7 +80,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/cnrancher/ack-operator v0.0.5-0.20241128064712-80cd5c093154 // indirect
+	github.com/cnrancher/ack-operator v0.0.5-0.20250401014136-d5f811965a0c // indirect
 	github.com/cnrancher/tke-operator v0.0.0-20240709040941-2b6bd9b720ba // indirect
 	github.com/containerd/cgroups v1.1.0 // indirect
 	github.com/containerd/containerd v1.6.27 // indirect
