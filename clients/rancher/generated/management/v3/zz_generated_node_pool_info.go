@@ -18,6 +18,8 @@ const (
 	NodePoolInfoFieldPeriod                = "period"
 	NodePoolInfoFieldPeriodUnit            = "period_unit"
 	NodePoolInfoFieldPlatform              = "platform"
+	NodePoolInfoFieldRuntime               = "runtime"
+	NodePoolInfoFieldRuntimeVersion        = "runtime_version"
 	NodePoolInfoFieldScalingType           = "scaling_type"
 	NodePoolInfoFieldSystemDiskCategory    = "system_disk_category"
 	NodePoolInfoFieldSystemDiskSize        = "system_disk_size"
@@ -41,6 +43,8 @@ type NodePoolInfo struct {
 	Period                int64      `json:"period,omitempty" yaml:"period,omitempty"`
 	PeriodUnit            string     `json:"period_unit,omitempty" yaml:"period_unit,omitempty"`
 	Platform              string     `json:"platform,omitempty" yaml:"platform,omitempty"`
+	Runtime               string     `json:"runtime,omitempty" yaml:"runtime,omitempty"`
+	RuntimeVersion        string     `json:"runtime_version,omitempty" yaml:"runtime_version,omitempty"`
 	ScalingType           string     `json:"scaling_type,omitempty" yaml:"scaling_type,omitempty"`
 	SystemDiskCategory    string     `json:"system_disk_category,omitempty" yaml:"system_disk_category,omitempty"`
 	SystemDiskSize        int64      `json:"system_disk_size,omitempty" yaml:"system_disk_size,omitempty"`

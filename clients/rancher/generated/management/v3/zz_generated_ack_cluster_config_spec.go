@@ -2,10 +2,12 @@ package client
 
 const (
 	ACKClusterConfigSpecType                          = "ackClusterConfigSpec"
+	ACKClusterConfigSpecFieldAddons                   = "addons"
 	ACKClusterConfigSpecFieldAliyunCredentialSecret   = "aliyun_credential_secret"
 	ACKClusterConfigSpecFieldCloudMonitorFlags        = "cloudMonitorFlags"
 	ACKClusterConfigSpecFieldClusterID                = "cluster_id"
 	ACKClusterConfigSpecFieldClusterIsUpgrading       = "clusterIsUpgrading"
+	ACKClusterConfigSpecFieldClusterSpec              = "clusterSpec"
 	ACKClusterConfigSpecFieldClusterType              = "clusterType"
 	ACKClusterConfigSpecFieldContainerCidr            = "containerCidr"
 	ACKClusterConfigSpecFieldDisableRollback          = "disableRollback"
@@ -30,6 +32,7 @@ const (
 	ACKClusterConfigSpecFieldOsType                   = "osType"
 	ACKClusterConfigSpecFieldPauseClusterUpgrade      = "pauseClusterUpgrade"
 	ACKClusterConfigSpecFieldPlatform                 = "platform"
+	ACKClusterConfigSpecFieldPodVswitchIds            = "podVswitchIds"
 	ACKClusterConfigSpecFieldProxyMode                = "proxyMode"
 	ACKClusterConfigSpecFieldRegionID                 = "regionId"
 	ACKClusterConfigSpecFieldResourceGroupID          = "resourceGroupId"
@@ -37,16 +40,19 @@ const (
 	ACKClusterConfigSpecFieldSecurityGroupID          = "securityGroupId"
 	ACKClusterConfigSpecFieldServiceCidr              = "serviceCidr"
 	ACKClusterConfigSpecFieldSnatEntry                = "snatEntry"
+	ACKClusterConfigSpecFieldTaskId                   = "taskId"
 	ACKClusterConfigSpecFieldTimeoutMins              = "timeoutMins"
 	ACKClusterConfigSpecFieldVpcID                    = "vpcId"
 	ACKClusterConfigSpecFieldVswitchIds               = "vswitchIds"
 )
 
 type ACKClusterConfigSpec struct {
+	Addons                   []Addon        `json:"addons,omitempty" yaml:"addons,omitempty"`
 	AliyunCredentialSecret   string         `json:"aliyun_credential_secret,omitempty" yaml:"aliyun_credential_secret,omitempty"`
 	CloudMonitorFlags        bool           `json:"cloudMonitorFlags,omitempty" yaml:"cloudMonitorFlags,omitempty"`
 	ClusterID                string         `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	ClusterIsUpgrading       bool           `json:"clusterIsUpgrading,omitempty" yaml:"clusterIsUpgrading,omitempty"`
+	ClusterSpec              string         `json:"clusterSpec,omitempty" yaml:"clusterSpec,omitempty"`
 	ClusterType              string         `json:"clusterType,omitempty" yaml:"clusterType,omitempty"`
 	ContainerCidr            string         `json:"containerCidr,omitempty" yaml:"containerCidr,omitempty"`
 	DisableRollback          bool           `json:"disableRollback,omitempty" yaml:"disableRollback,omitempty"`
@@ -71,6 +77,7 @@ type ACKClusterConfigSpec struct {
 	OsType                   string         `json:"osType,omitempty" yaml:"osType,omitempty"`
 	PauseClusterUpgrade      bool           `json:"pauseClusterUpgrade,omitempty" yaml:"pauseClusterUpgrade,omitempty"`
 	Platform                 string         `json:"platform,omitempty" yaml:"platform,omitempty"`
+	PodVswitchIds            []string       `json:"podVswitchIds,omitempty" yaml:"podVswitchIds,omitempty"`
 	ProxyMode                string         `json:"proxyMode,omitempty" yaml:"proxyMode,omitempty"`
 	RegionID                 string         `json:"regionId,omitempty" yaml:"regionId,omitempty"`
 	ResourceGroupID          string         `json:"resourceGroupId,omitempty" yaml:"resourceGroupId,omitempty"`
@@ -78,6 +85,7 @@ type ACKClusterConfigSpec struct {
 	SecurityGroupID          string         `json:"securityGroupId,omitempty" yaml:"securityGroupId,omitempty"`
 	ServiceCidr              string         `json:"serviceCidr,omitempty" yaml:"serviceCidr,omitempty"`
 	SnatEntry                bool           `json:"snatEntry,omitempty" yaml:"snatEntry,omitempty"`
+	TaskId                   string         `json:"taskId,omitempty" yaml:"taskId,omitempty"`
 	TimeoutMins              int64          `json:"timeoutMins,omitempty" yaml:"timeoutMins,omitempty"`
 	VpcID                    string         `json:"vpcId,omitempty" yaml:"vpcId,omitempty"`
 	VswitchIds               []string       `json:"vswitchIds,omitempty" yaml:"vswitchIds,omitempty"`
