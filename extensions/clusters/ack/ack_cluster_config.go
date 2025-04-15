@@ -16,6 +16,7 @@ type ClusterConfig struct {
 	ClusterID                string         `json:"cluster_id,omitempty" yaml:"cluster_id,omitempty"`
 	ClusterIsUpgrading       bool           `json:"clusterIsUpgrading,omitempty" yaml:"clusterIsUpgrading,omitempty"`
 	ClusterType              string         `json:"clusterType,omitempty" yaml:"clusterType,omitempty"`
+	ClusterSpec              string         `json:"clusterSpec,omitempty" yaml:"clusterSpec,omitempty"`
 	ContainerCidr            string         `json:"containerCidr,omitempty" yaml:"containerCidr,omitempty"`
 	DisableRollback          bool           `json:"disableRollback,omitempty" yaml:"disableRollback,omitempty"`
 	EndpointPublicAccess     bool           `json:"endpointPublicAccess,omitempty" yaml:"endpointPublicAccess,omitempty"`
@@ -49,6 +50,13 @@ type ClusterConfig struct {
 	TimeoutMins              int64          `json:"timeoutMins,omitempty" yaml:"timeoutMins,omitempty"`
 	VpcID                    string         `json:"vpcId,omitempty" yaml:"vpcId,omitempty"`
 	VswitchIds               []string       `json:"vswitchIds,omitempty" yaml:"vswitchIds,omitempty"`
+	Addons                   []Addon        `json:"addons,omitempty" yaml:"addons,omitempty"`
+	PodVswitchIds            []string       `json:"podVswitchIds,omitempty" yaml:"podVswitchIds,omitempty"`
+}
+
+type Addon struct {
+	Config string `json:"config,omitempty" yaml:"config,omitempty"`
+	Name   string `json:"name,omitempty" yaml:"name,omitempty"`
 }
 
 // NodePool is the configuration needed to an ACK node pool
@@ -73,6 +81,8 @@ type NodePoolInfo struct {
 	SystemDiskCategory    string     `json:"system_disk_category,omitempty" yaml:"system_disk_category,omitempty"`
 	SystemDiskSize        int64      `json:"system_disk_size,omitempty" yaml:"system_disk_size,omitempty"`
 	VSwitchIds            []string   `json:"v_switch_ids,omitempty" yaml:"v_switch_ids,omitempty"`
+	Runtime               string     `json:"runtime,omitempty" yaml:"runtime,omitempty"`
+	RuntimeVersion        string     `json:"runtime_version,omitempty" yaml:"runtime_version,omitempty"`
 }
 
 type DiskInfo struct {
@@ -111,10 +121,24 @@ func ackNodePoolConstructor(ackNodePoolConfigs *[]NodePoolInfo) []management.Nod
 			SystemDiskSize:     ackNodePoolConfig.SystemDiskSize,
 			DataDisk:           ackDiskInfoConstructor(&ackNodePoolConfig.DataDisk),
 			VSwitchIds:         ackNodePoolConfig.VSwitchIds,
+			Runtime:            ackNodePoolConfig.Runtime,
+			RuntimeVersion:     ackNodePoolConfig.RuntimeVersion,
 		}
 		ackNodePools = append(ackNodePools, ackNodePool)
 	}
 	return ackNodePools
+}
+
+func addonConstructor(ackClusterConfig *ClusterConfig) []management.Addon {
+	if ackClusterConfig.Addons == nil || len(ackClusterConfig.Addons) == 0 {
+		return []management.Addon{}
+	}
+	return []management.Addon{
+		{
+			Name:   ackClusterConfig.Addons[0].Name,
+			Config: ackClusterConfig.Addons[0].Config,
+		},
+	}
 }
 
 func HostClusterConfig(displayName, cloudCredentialID string, ackClusterConfig ClusterConfig) *management.ACKClusterConfigSpec {
@@ -123,6 +147,7 @@ func HostClusterConfig(displayName, cloudCredentialID string, ackClusterConfig C
 		Name:                     displayName,
 		AliyunCredentialSecret:   cloudCredentialID,
 		ClusterType:              ackClusterConfig.ClusterType,
+		ClusterSpec:              ackClusterConfig.ClusterSpec,
 		RegionID:                 ackClusterConfig.RegionID,
 		ContainerCidr:            ackClusterConfig.ContainerCidr,
 		ServiceCidr:              ackClusterConfig.ServiceCidr,
@@ -143,6 +168,8 @@ func HostClusterConfig(displayName, cloudCredentialID string, ackClusterConfig C
 		VpcID:                    ackClusterConfig.VpcID,
 		MasterVswitchIds:         ackClusterConfig.MasterVswitchIds,
 		KeyPair:                  ackClusterConfig.KeyPair,
+		PodVswitchIds:            ackClusterConfig.PodVswitchIds,
+		Addons:                   addonConstructor(&ackClusterConfig),
 		NodePoolList:             ackNodePoolConstructor(&ackClusterConfig.NodePoolList),
 	}
 }
