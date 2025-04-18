@@ -1,5 +1,5 @@
 /*
-Copyright 2024 Rancher Labs, Inc.
+Copyright 2025 Rancher Labs, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 package versioned
 
 import (
-	"fmt"
-	"net/http"
+	fmt "fmt"
+	http "net/http"
 
 	catalogv1 "github.com/rancher/shepherd/pkg/generated/clientset/versioned/typed/catalog.cattle.io/v1"
 	provisioningv1 "github.com/rancher/shepherd/pkg/generated/clientset/versioned/typed/provisioning.cattle.io/v1"

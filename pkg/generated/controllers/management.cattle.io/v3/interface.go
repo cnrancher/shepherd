@@ -1,5 +1,5 @@
 /*
-Copyright 2024 Rancher Labs, Inc.
+Copyright 2025 Rancher Labs, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ type Interface interface {
 	AuthProvider() AuthProviderController
 	AuthToken() AuthTokenController
 	AzureADProvider() AzureADProviderController
+	CASProvider() CASProviderController
 	CloudCredential() CloudCredentialController
 	Cluster() ClusterController
 	ClusterProxyConfig() ClusterProxyConfigController
@@ -73,6 +74,17 @@ type Interface interface {
 	Principal() PrincipalController
 	Project() ProjectController
 	ProjectNetworkPolicy() ProjectNetworkPolicyController
+	ProjectResourceQuotaUsage() ProjectResourceQuotaUsageController
+	ProjectRoleTemplateBinding() ProjectRoleTemplateBindingController
+	RancherUserNotification() RancherUserNotificationController
+	RkeAddon() RkeAddonController
+	RkeK8sServiceOption() RkeK8sServiceOptionController
+	RkeK8sSystemImage() RkeK8sSystemImageController
+	RoleTemplate() RoleTemplateController
+	SamlProvider() SamlProviderController
+	SamlToken() SamlTokenController
+	Setting() SettingController
+	Token() TokenController
 	User() UserController
 	UserAttribute() UserAttributeController
 }
@@ -115,18 +127,6 @@ func (v *version) AzureADProvider() AzureADProviderController {
 
 func (v *version) CASProvider() CASProviderController {
 	return generic.NewNonNamespacedController[*v3.CASProvider, *v3.CASProviderList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "CASProvider"}, "casproviders", v.controllerFactory, v.ts)
-}
-
-func (v *version) Catalog() CatalogController {
-	return generic.NewNonNamespacedController[*v3.Catalog, *v3.CatalogList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "Catalog"}, "catalogs", v.controllerFactory, v.ts)
-}
-
-func (v *version) CatalogTemplate() CatalogTemplateController {
-	return generic.NewController[*v3.CatalogTemplate, *v3.CatalogTemplateList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "CatalogTemplate"}, "catalogtemplates", true, v.controllerFactory, v.ts)
-}
-
-func (v *version) CatalogTemplateVersion() CatalogTemplateVersionController {
-	return generic.NewController[*v3.CatalogTemplateVersion, *v3.CatalogTemplateVersionList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "CatalogTemplateVersion"}, "catalogtemplateversions", true, v.controllerFactory, v.ts)
 }
 
 func (v *version) CloudCredential() CloudCredentialController {
