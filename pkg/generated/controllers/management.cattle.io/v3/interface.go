@@ -74,7 +74,6 @@ type Interface interface {
 	Principal() PrincipalController
 	Project() ProjectController
 	ProjectNetworkPolicy() ProjectNetworkPolicyController
-	ProjectResourceQuotaUsage() ProjectResourceQuotaUsageController
 	ProjectRoleTemplateBinding() ProjectRoleTemplateBindingController
 	RancherUserNotification() RancherUserNotificationController
 	RkeAddon() RkeAddonController
