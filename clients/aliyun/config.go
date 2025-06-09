@@ -3,16 +3,16 @@ package aliyun
 // The json/yaml config key for the ALIYUNECSConfig
 const ConfigurationFileKey = "aliyunECSConfigs"
 
-// ALIYUNECSConfigs is the AWS authentication configuration for accessing and launching ec2 instances
-type ALIYUNECSConfigs struct {
-	ALIYUNECSConfig          []ALIYUNECSConfig `json:"aliyunECSConfig" yaml:"aliyunECSConfig"`
-	ALIYUNECSAccessKeyID     string            `json:"aliyunAccessKeyID" yaml:"aliyunAccessKeyID"`
-	ALIYUNECSSecretAccessKey string            `json:"aliyunSecretAccessKey" yaml:"aliyunSecretAccessKey"`
-	Region                   string            `json:"region" yaml:"region"`
+// ECSConfigs is the AWS authentication configuration for accessing and launching ec2 instances
+type ECSConfigs struct {
+	ECSConfig          []ECSConfig `json:"aliyunECSConfig" yaml:"aliyunECSConfig"`
+	ECSAccessKeyID     string      `json:"aliyunAccessKeyID" yaml:"aliyunAccessKeyID"`
+	ECSSecretAccessKey string      `json:"aliyunSecretAccessKey" yaml:"aliyunSecretAccessKey"`
+	Region             string      `json:"region" yaml:"region"`
 }
 
-// ALIYUNECSConfig is the instance-specific configuration needed to launch ec2 instances in AWS
-type ALIYUNECSConfig struct {
+// ECSConfig is the instance-specific configuration needed to launch ec2 instances in AWS
+type ECSConfig struct {
 	ImageID                 string   `json:"imageId" yaml:"imageId"`
 	SSHPassword             string   `json:"sshPassword" yaml:"sshPassword"`
 	SSHKeyPairName          string   `json:"sshKeypair" yaml:"sshKeypair"`
