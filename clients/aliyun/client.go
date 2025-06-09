@@ -10,16 +10,16 @@ import (
 // ECSClient is a struct that wraps the needed ALIYUNECSConfig object, and ecs.ECs which makes the actual calls to aliyun.
 type ECSClient struct {
 	Client       *ecs.Client
-	ClientConfig *ALIYUNECSConfigs
+	ClientConfig *ECSConfigs
 }
 
 // NewECSClient is a constructor that creates an *ECSClient which a wrapper for a "github.com/aliyun/alibaba-cloud-sdk-go/services/ecs" session and
 // the aliyun ecs config.
 func NewECSClient() (*ECSClient, error) {
 	ecsConfig := sdk.NewConfig()
-	aliyunecsClientConfig := new(ALIYUNECSConfigs)
+	aliyunecsClientConfig := new(ECSConfigs)
 	config.LoadConfig(ConfigurationFileKey, aliyunecsClientConfig)
-	credential := credentials.NewAccessKeyCredential(aliyunecsClientConfig.ALIYUNECSAccessKeyID, aliyunecsClientConfig.ALIYUNECSSecretAccessKey)
+	credential := credentials.NewAccessKeyCredential(aliyunecsClientConfig.ECSAccessKeyID, aliyunecsClientConfig.ECSSecretAccessKey)
 	client, err := ecs.NewClientWithOptions(aliyunecsClientConfig.Region, ecsConfig, credential)
 	if err != nil {
 		return nil, err
