@@ -1,8 +1,11 @@
-name: Verify Changes
+name: Pandaria Verify Changes
 
 on:
   push:
-    branches-ignore: [ '**' ] # PANDARIA: Disabled
+  pull_request:
+    branches:
+      - 'release/*'
+      - 'main'
 
 jobs:
   verify-changes:
@@ -26,6 +29,13 @@ jobs:
       - name: Generate Golang
         run: |
           export PATH=$PATH:/home/runner/go/bin/
+
+      - name: Setup GOPRIVATE
+        env:
+          RD_ONLY_GH_TOKEN: ${{ secrets.RD_ONLY_GH_TOKEN }}
+        run: |
+          go env -w GOPRIVATE=github.com/cnrancher
+          git config --global url."https://oauth2:${RD_ONLY_GH_TOKEN}@github.com/cnrancher".insteadOf "https://github.com/cnrancher"
 
       - name: Verify Go Mod
         run: ./.github/scripts/check-go-mod.sh
