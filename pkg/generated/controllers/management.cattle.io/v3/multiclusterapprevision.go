@@ -23,17 +23,17 @@ import (
 	"github.com/rancher/shepherd/pkg/wrangler/pkg/generic"
 )
 
-// GlobalRoleBindingController interface for managing GlobalRoleBinding resources.
-type GlobalRoleBindingController interface {
-	generic.NonNamespacedControllerInterface[*v3.GlobalRoleBinding, *v3.GlobalRoleBindingList]
+// MultiClusterAppRevisionController interface for managing MultiClusterAppRevision resources.
+type MultiClusterAppRevisionController interface {
+	generic.ControllerInterface[*v3.MultiClusterAppRevision, *v3.MultiClusterAppRevisionList]
 }
 
-// GlobalRoleBindingClient interface for managing GlobalRoleBinding resources in Kubernetes.
-type GlobalRoleBindingClient interface {
-	generic.NonNamespacedClientInterface[*v3.GlobalRoleBinding, *v3.GlobalRoleBindingList]
+// MultiClusterAppRevisionClient interface for managing MultiClusterAppRevision resources in Kubernetes.
+type MultiClusterAppRevisionClient interface {
+	generic.ClientInterface[*v3.MultiClusterAppRevision, *v3.MultiClusterAppRevisionList]
 }
 
-// GlobalRoleBindingCache interface for retrieving GlobalRoleBinding resources in memory.
-type GlobalRoleBindingCache interface {
-	generic.NonNamespacedCacheInterface[*v3.GlobalRoleBinding]
+// MultiClusterAppRevisionCache interface for retrieving MultiClusterAppRevision resources in memory.
+type MultiClusterAppRevisionCache interface {
+	generic.CacheInterface[*v3.MultiClusterAppRevision]
 }

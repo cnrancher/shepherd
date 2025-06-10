@@ -23,17 +23,17 @@ import (
 	"github.com/rancher/shepherd/pkg/wrangler/pkg/generic"
 )
 
-// GlobalRoleBindingController interface for managing GlobalRoleBinding resources.
-type GlobalRoleBindingController interface {
-	generic.NonNamespacedControllerInterface[*v3.GlobalRoleBinding, *v3.GlobalRoleBindingList]
+// TemplateContentController interface for managing TemplateContent resources.
+type TemplateContentController interface {
+	generic.NonNamespacedControllerInterface[*v3.TemplateContent, *v3.TemplateContentList]
 }
 
-// GlobalRoleBindingClient interface for managing GlobalRoleBinding resources in Kubernetes.
-type GlobalRoleBindingClient interface {
-	generic.NonNamespacedClientInterface[*v3.GlobalRoleBinding, *v3.GlobalRoleBindingList]
+// TemplateContentClient interface for managing TemplateContent resources in Kubernetes.
+type TemplateContentClient interface {
+	generic.NonNamespacedClientInterface[*v3.TemplateContent, *v3.TemplateContentList]
 }
 
-// GlobalRoleBindingCache interface for retrieving GlobalRoleBinding resources in memory.
-type GlobalRoleBindingCache interface {
-	generic.NonNamespacedCacheInterface[*v3.GlobalRoleBinding]
+// TemplateContentCache interface for retrieving TemplateContent resources in memory.
+type TemplateContentCache interface {
+	generic.NonNamespacedCacheInterface[*v3.TemplateContent]
 }
