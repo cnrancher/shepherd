@@ -19,8 +19,8 @@ limitations under the License.
 package versioned
 
 import (
-	fmt "fmt"
-	http "net/http"
+	"fmt"
+	"net/http"
 
 	catalogv1 "github.com/rancher/shepherd/pkg/generated/clientset/versioned/typed/catalog.cattle.io/v1"
 	provisioningv1 "github.com/rancher/shepherd/pkg/generated/clientset/versioned/typed/provisioning.cattle.io/v1"
