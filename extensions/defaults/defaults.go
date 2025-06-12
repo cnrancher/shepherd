@@ -13,4 +13,6 @@ var (
 	TenMinuteTimeout              = 10 * time.Minute
 	FifteenMinuteTimeout          = 15 * time.Minute
 	ThirtyMinuteTimeout           = 30 * time.Minute
+
+	PandariaWatchTimeoutSeconds = int64(60 * 5) // PANDARIA: 5 minutes.
 )

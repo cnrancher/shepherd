@@ -170,7 +170,7 @@ func CreateRKE1Cluster(client *rancher.Client, rke1Cluster *management.Cluster) 
 
 		watchInterface, err := adminClient.GetManagementWatchInterface(management.ClusterType, metav1.ListOptions{
 			FieldSelector:  "metadata.name=" + clusterResp.ID,
-			TimeoutSeconds: &defaults.WatchTimeoutSeconds,
+			TimeoutSeconds: &defaults.PandariaWatchTimeoutSeconds, // PANDARIA: Wait 5 minutes to cleanup
 		})
 		if err != nil {
 			return err
