@@ -63,8 +63,10 @@ func AllManagementNodeReady(client *rancher.Client, ClusterID string, timeout ti
 				}
 
 				if node.State != activeState {
+					logrus.Infof("Waiting for cluster [%v] node [%v] state %q...", ClusterID, node.ID, node.State) // PANDARIA
 					return false, nil
 				}
+				logrus.Infof("Cluster [%v] node [%v] state is %q", ClusterID, node.ID, node.State) // PANDARIA
 			}
 
 			logrus.Infof("All nodes in the cluster are in an active state!")
