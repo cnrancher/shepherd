@@ -45,12 +45,14 @@ func AllManagementNodeReady(client *rancher.Client, ClusterID string, timeout ti
 				},
 			})
 			if err != nil {
+				logrus.Warnf("Failed to list cluster %v nodes: %v", ClusterID, err) // PANDARIA
 				return false, nil
 			}
 
 			for _, node := range nodes.Data {
 				node, err := client.Management.Node.ByID(node.ID)
 				if err != nil {
+					logrus.Warnf("Failed to query node: %v", err) // PANDARIA
 					return false, nil
 				}
 
@@ -84,6 +86,7 @@ func AllMachineReady(client *rancher.Client, clusterID string, timeout time.Dura
 				"clusterId": clusterID,
 			}})
 			if err != nil {
+				logrus.Warnf("Failed to list nodes: %v", err) // PANDARIA
 				return false, err
 			}
 
@@ -92,6 +95,7 @@ func AllMachineReady(client *rancher.Client, clusterID string, timeout time.Dura
 					SteveType(machineSteveResourceType).
 					ByID(fleetNamespace + "/" + node.Annotations[machineSteveAnnotation])
 				if err != nil {
+					logrus.Warnf("Failed to get machine: %v", err) // PANDARIA
 					return false, err
 				}
 

@@ -306,11 +306,13 @@ func UpdateRKE1Cluster(client *rancher.Client, cluster, updatedCluster *manageme
 	err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.ThirtyMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
 		client, err = client.ReLogin()
 		if err != nil {
+			logrus.Warnf("Failed to re-login rancher client: %v", err) // PANDARIA
 			return false, err
 		}
 
 		clusterResp, err := client.Management.Cluster.ByID(newCluster.ID)
 		if err != nil {
+			logrus.Warnf("Failed to query cluster %v: %v", newCluster.ID, err) // PANDARIA
 			return false, err
 		}
 
@@ -345,11 +347,13 @@ func UpdateK3SRKE2Cluster(client *rancher.Client, cluster *v1.SteveAPIObject, up
 	err = kwait.PollUntilContextTimeout(context.TODO(), 500*time.Millisecond, defaults.ThirtyMinuteTimeout, true, func(ctx context.Context) (done bool, err error) {
 		client, err = client.ReLogin()
 		if err != nil {
+			logrus.Warnf("Failed to re-login rancher client: %v", err) // PANDARIA
 			return false, err
 		}
 
 		clusterResp, err := client.Steve.SteveType(ProvisioningSteveResourceType).ByID(cluster.ID)
 		if err != nil {
+			logrus.Warnf("Failed to query cluster %v: %v", cluster.ID, err) // PANDARIA
 			return false, err
 		}
 
