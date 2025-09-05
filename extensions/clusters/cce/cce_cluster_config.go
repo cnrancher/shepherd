@@ -2,7 +2,6 @@ package cce
 
 import (
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
-	"github.com/rancher/shepherd/pkg/config"
 )
 
 const (
@@ -134,10 +133,7 @@ func nodePoolsConstructor(nodePoolsConfig []NodePool) []management.CCENodePool {
 	return nodePools
 }
 
-func HostClusterConfig(name, cloudCredentialID string) *management.CCEClusterConfigSpec {
-	var cceClusterConfig ClusterConfig
-	config.LoadConfig(CCEClusterConfigConfigurationFileKey, &cceClusterConfig)
-
+func HostClusterConfig(name, cloudCredentialID string, cceClusterConfig ClusterConfig) *management.CCEClusterConfigSpec {
 	return &management.CCEClusterConfigSpec{
 		Authentication: &management.CCEAuthentication{
 			AuthenticatingProxy: &management.CCEAuthenticatingProxy{

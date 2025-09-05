@@ -24,8 +24,8 @@ import (
 )
 
 // CreateCCEHostedCluster is a helper function that creates an CCE hosted cluster
-func CreateCCEHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
-	cceHostCluster := HostClusterConfig(displayName, cloudCredentialID)
+func CreateCCEHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, clusterConfig ClusterConfig, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
+	cceHostCluster := HostClusterConfig(displayName, cloudCredentialID, clusterConfig)
 	cluster := &management.Cluster{
 		DockerRootDir:          "/var/lib/docker",
 		CCEConfig:              cceHostCluster,
