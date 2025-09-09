@@ -1,6 +1,7 @@
 package cce
 
 import (
+	"fmt"
 	"time"
 
 	ccev1 "github.com/cnrancher/cce-operator/pkg/apis/cce.pandaria.io/v1"
@@ -13,6 +14,7 @@ import (
 	huawei_ecs "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/ecs/v2"
 	huawei_ecs_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/ecs/v2/model"
 	huawei_ecs_region "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/ecs/v2/region"
+	huawei_eipv2_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/eip/v2/model"
 	huawei_eipv3 "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/eip/v3"
 	huawei_eipv3_model "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/eip/v3/model"
 	huawei_eipv3_region "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/eip/v3/region"
@@ -171,4 +173,125 @@ func UpdateNodePublicIP(client *rancher.Client, ID string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+// CleanupNodeEIP cleanup cluster node public IPs.
+func CleanupNodeEIP(client *rancher.Client, ID string) (bool, error) {
+	cluster, err := client.Management.Cluster.ByID(ID)
+	if err != nil {
+		return true, err
+	}
+	if cluster.CCEConfig == nil || len(cluster.CCEConfig.NodePools) == 0 {
+		return true, nil
+	}
+	clusterID := cluster.CCEConfig.ClusterID
+	if clusterID == "" {
+		return true, nil
+	}
+	var c cloudcredentials.HuaweiCredentialConfig
+	config.LoadConfig(cloudcredentials.HuaweiCredentialConfigurationFileKey, &c)
+	auth := common.NewClientAuth(c.AccessKey, c.SecretKey, c.RegionID, c.ProjectID)
+	driver := controller.NewHuaweiDriver(auth)
+	nodesRes, err := cce.ListNodes(driver.CCE, clusterID)
+	if err != nil {
+		return false, err
+	}
+	if nodesRes == nil || nodesRes.Items == nil || len(*nodesRes.Items) == 0 {
+		// Cluster does not have nodes
+		return true, nil
+	}
+	time.Sleep(time.Millisecond * 100)
+
+	for _, node := range *nodesRes.Items {
+		if node.Status == nil || node.Status.Phase == nil || node.Status.ServerId == nil ||
+			node.Metadata == nil || node.Metadata.Name == nil {
+			continue
+		}
+		if *node.Status.Phase != huawei_cce_model.GetNodeStatusPhaseEnum().ACTIVE {
+			logrus.Infof("waiting for node [%s] status %v",
+				utils.Value(node.Metadata.Name), node.Status.Phase.Value())
+			return false, nil
+		}
+
+		serverID := utils.Value(node.Status.ServerId)
+		logrus.Infof("node [%s] server ID [%s]", utils.Value(node.Metadata.Name), serverID)
+		ecs := huawei_ecs.NewEcsClient(huawei_ecs.EcsClientBuilder().
+			WithRegion(huawei_ecs_region.ValueOf(auth.Region)).
+			WithCredential(auth.Credential).
+			Build())
+		showServerRes, err := ecs.ShowServer(&huawei_ecs_model.ShowServerRequest{
+			ServerId: serverID,
+		})
+		if err != nil {
+			return false, err
+		}
+		time.Sleep(time.Millisecond * 100)
+
+		if showServerRes == nil || showServerRes.Server == nil || showServerRes.Server.Addresses == nil {
+			continue
+		}
+		var nodePublicIP = ""
+		for _, addresses := range showServerRes.Server.Addresses {
+			if len(addresses) == 0 {
+				continue
+			}
+			for _, addr := range addresses {
+				if addr.OSEXTIPStype.Value() == "floating" {
+					nodePublicIP = addr.Addr
+				}
+			}
+		}
+		if nodePublicIP == "" {
+			logrus.Infof("node %q id %q does not have public ip, skip", utils.Value(node.Metadata.Name), utils.Value(node.Metadata.Uid))
+			continue
+		}
+
+		eipv3 := huawei_eipv3.NewEipClient(
+			huawei_eipv3.EipClientBuilder().
+				WithRegion(huawei_eipv3_region.ValueOf(auth.Region)).
+				WithCredential(auth.Credential).
+				Build())
+
+		listPublicIPRes, err := eipv3.ListPublicips(&huawei_eipv3_model.ListPublicipsRequest{
+			PublicIpAddress: &[]string{nodePublicIP},
+		})
+		if err != nil {
+			return false, err
+		}
+		time.Sleep(time.Millisecond * 100)
+
+		if listPublicIPRes == nil || listPublicIPRes.Publicips == nil {
+			logrus.Warnf("ListPublicips returns invalid data")
+			continue
+		}
+
+		if len(*listPublicIPRes.Publicips) == 0 {
+			continue
+		}
+		for _, ipRes := range *listPublicIPRes.Publicips {
+			if ipRes.Id == nil {
+				continue
+			}
+			eipID := utils.Value(ipRes.Id)
+
+			logrus.Infof("request to disassociate EIP ID [%v]", eipID)
+			_, err := eipv3.DisassociatePublicips(&huawei_eipv3_model.DisassociatePublicipsRequest{
+				PublicipId: eipID,
+			})
+			if err != nil {
+				return false, fmt.Errorf("failed to disassociate EIP %q: %w", eipID, err)
+			}
+			time.Sleep(time.Second * 10)
+
+			logrus.Infof("request to delete EIP ID [%v]", eipID)
+			_, err = driver.EIP.DeletePublicip(&huawei_eipv2_model.DeletePublicipRequest{
+				PublicipId: eipID,
+			})
+			if err != nil {
+				return false, fmt.Errorf("failed to delete EIP %q: %w", eipID, err)
+			}
+			time.Sleep(time.Millisecond * 100)
+		}
+	}
+	return true, nil
 }
