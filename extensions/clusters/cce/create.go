@@ -200,7 +200,7 @@ func CleanupNodeEIP(client *rancher.Client, ID string) (bool, error) {
 		// Cluster does not have nodes
 		return true, nil
 	}
-	time.Sleep(time.Millisecond * 100)
+	<-time.After(time.Millisecond * 100)
 
 	for _, node := range *nodesRes.Items {
 		if node.Status == nil || node.Status.Phase == nil || node.Status.ServerId == nil ||
@@ -225,7 +225,7 @@ func CleanupNodeEIP(client *rancher.Client, ID string) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		time.Sleep(time.Millisecond * 100)
+		<-time.After(time.Millisecond * 100)
 
 		if showServerRes == nil || showServerRes.Server == nil || showServerRes.Server.Addresses == nil {
 			continue
@@ -258,7 +258,7 @@ func CleanupNodeEIP(client *rancher.Client, ID string) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		time.Sleep(time.Millisecond * 100)
+		<-time.After(time.Millisecond * 100)
 
 		if listPublicIPRes == nil || listPublicIPRes.Publicips == nil {
 			logrus.Warnf("ListPublicips returns invalid data")
@@ -281,7 +281,7 @@ func CleanupNodeEIP(client *rancher.Client, ID string) (bool, error) {
 			if err != nil {
 				return false, fmt.Errorf("failed to disassociate EIP %q: %w", eipID, err)
 			}
-			time.Sleep(time.Second * 10)
+			<-time.After(time.Second * 10)
 
 			logrus.Infof("request to delete EIP ID [%v]", eipID)
 			_, err = driver.EIP.DeletePublicip(&huawei_eipv2_model.DeletePublicipRequest{
@@ -290,7 +290,7 @@ func CleanupNodeEIP(client *rancher.Client, ID string) (bool, error) {
 			if err != nil {
 				return false, fmt.Errorf("failed to delete EIP %q: %w", eipID, err)
 			}
-			time.Sleep(time.Millisecond * 100)
+			<-time.After(time.Millisecond * 100)
 		}
 	}
 	return true, nil

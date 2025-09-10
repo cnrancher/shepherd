@@ -8,6 +8,7 @@ import (
 	"github.com/rancher/shepherd/clients/rancher"
 	v1 "github.com/rancher/shepherd/clients/rancher/v1"
 	"github.com/rancher/shepherd/extensions/defaults"
+	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	kwait "k8s.io/apimachinery/pkg/util/wait"
 )
@@ -19,20 +20,23 @@ const (
 // StatusPods is a helper function that uses the steve client to list pods on a namespace for a specific cluster
 // and return the statuses in a list of strings
 func StatusPods(client *rancher.Client, clusterID string) []error {
-	downstreamClient, err := client.Steve.ProxyDownstream(clusterID)
-	if err != nil {
-		return []error{err}
-	}
-
 	var podErrors []error
 
-	steveClient := downstreamClient.SteveType(PodResourceSteveType)
-	err = kwait.Poll(5*time.Second, defaults.FifteenMinuteTimeout, func() (done bool, err error) {
+	err := kwait.Poll(5*time.Second, defaults.FifteenMinuteTimeout, func() (done bool, err error) {
+		downstreamClient, err := client.Steve.ProxyDownstream(clusterID)
+		if err != nil {
+			logrus.Warnf("failed to create steve doenstream proxy: %v", err) // PANDARIA:
+			return false, nil
+		}
+		steveClient := downstreamClient.SteveType(PodResourceSteveType)
+
 		// emptying pod errors every time we poll so that we don't return stale errors
 		podErrors = []error{}
 
+		logrus.Infof("listing downstream cluster pods...") // PANDARIA:
 		pods, err := steveClient.List(nil)
 		if err != nil {
+			logrus.Warnf("failed to list pod: %v", err) // PANDARIA:
 			// not returning the error in this case, as it could cause a false positive if we start polling too early.
 			return false, nil
 		}
@@ -41,10 +45,12 @@ func StatusPods(client *rancher.Client, clusterID string) []error {
 			isReady, err := IsPodReady(&pod)
 			if !isReady {
 				// not returning the error in this case, as it could cause a false positive if we start polling too early.
+				logrus.Infof("pod [%v/%v] not ready", pod.Namespace, pod.Name) // PANDARIA:
 				return false, nil
 			}
 
 			if err != nil {
+				logrus.Warnf("failed to check pod ready: %v", err) // PANDARIA:
 				podErrors = append(podErrors, err)
 			}
 		}
