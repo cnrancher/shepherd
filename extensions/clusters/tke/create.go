@@ -6,8 +6,8 @@ import (
 )
 
 // CreateTKEHostedCluster is a helper function that creates an TKE hosted cluster
-func CreateTKEHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
-	tkeHostCluster := HostClusterConfig(displayName, cloudCredentialID)
+func CreateTKEHostedCluster(client *rancher.Client, displayName, cloudCredentialID string, clusterConfig ClusterConfig, enableClusterAlerting, enableClusterMonitoring, enableNetworkPolicy, windowsPreferedCluster bool, labels map[string]string) (*management.Cluster, error) {
+	tkeHostCluster := HostClusterConfig(displayName, cloudCredentialID, clusterConfig)
 	cluster := &management.Cluster{
 		DockerRootDir:          "/var/lib/docker",
 		TKEConfig:              tkeHostCluster,

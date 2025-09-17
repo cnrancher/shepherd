@@ -2,7 +2,6 @@ package tke
 
 import (
 	management "github.com/rancher/shepherd/clients/rancher/generated/management/v3"
-	"github.com/rancher/shepherd/pkg/config"
 )
 
 const (
@@ -208,10 +207,7 @@ func nodePoolsConstructor(nodePoolsConfig []NodePoolDetail) []management.NodePoo
 	return nodePoolList
 }
 
-func HostClusterConfig(name, cloudCredentialID string) *management.TKEClusterConfigSpec {
-	var tkeClusterConfig ClusterConfig
-	config.LoadConfig(TKEClusterConfigConfigurationFileKey, &tkeClusterConfig)
-
+func HostClusterConfig(name, cloudCredentialID string, tkeClusterConfig ClusterConfig) *management.TKEClusterConfigSpec {
 	return &management.TKEClusterConfigSpec{
 		Region:              tkeClusterConfig.Region,
 		TKECredentialSecret: cloudCredentialID,
