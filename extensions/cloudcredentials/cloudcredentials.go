@@ -29,6 +29,7 @@ type CloudCredential struct {
 	HarvesterCredentialConfig    *HarvesterCredentialConfig     `json:"harvestercredentialConfig,omitempty"`
 	GoogleCredentialConfig       *GoogleCredentialConfig        `json:"googlecredentialConfig,omitempty"`
 	VmwareVsphereConfig          *VmwarevsphereCredentialConfig `json:"vmwarevspherecredentialConfig,omitempty"`
+	AlibabaCredentialConfig      *AlibabaCredentialConfig       `json:"alibabacredentialConfig,omitempty"`
 	AliyunECSCredentialConfig    *AliyunECSCredentialConfig     `json:"aliyunecscredentialConfig,omitempty"`
 	HuaweiCredentialConfig       *HuaweiCredentialConfig        `json:"huaweicredentialConfig,omitempty"`
 	TencentCredentialConfig      *TencentCredentialConfig       `json:"tkecredentialConfig,omitempty"`
@@ -96,6 +97,11 @@ func LoadCloudCredential(provider string) CloudCredential {
 
 		return cloudCredential
 
+	case provider == providers.Alibaba:
+		var alibabaCredentialConfig AlibabaCredentialConfig
+
+		config.LoadConfig(AlibabaCredentialConfigurationFileKey, &alibabaCredentialConfig)
+		cloudCredential.AlibabaCredentialConfig = &alibabaCredentialConfig
 	case provider == providers.Huawei:
 		var huaweiCredentialConfig HuaweiCredentialConfig
 

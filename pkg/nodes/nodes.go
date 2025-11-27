@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/sftp"
 	"github.com/rancher/shepherd/pkg/config"
@@ -25,17 +26,27 @@ type SSHPath struct {
 
 // Node is a configuration of node that is from an outside cloud provider
 type Node struct {
-	NodeID           string `json:"nodeID" yaml:"nodeID"`
-	PublicIPAddress  string `json:"publicIPAddress" yaml:"publicIPAddress"`
-	PrivateIPAddress string `json:"privateIPAddress" yaml:"privateIPAddress"`
-	SSHUser          string `json:"sshUser" yaml:"sshUser"`
-	SSHKeyName       string `json:"sshKeyName" yaml:"sshKeyName"`
-	SSHKey           []byte
+	NodeID             string `json:"nodeID" yaml:"nodeID"`
+	PublicIPAddress    string `json:"publicIPAddress" yaml:"publicIPAddress"`
+	PrivateIPAddress   string `json:"privateIPAddress" yaml:"privateIPAddress"`
+	PublicIPv6Address  string `json:"publicIPv6Address" yaml:"publicIPv6Address"`
+	PrivateIPv6Address string `json:"privateIPv6Address" yaml:"privateIPv6Address"`
+	SSHUser            string `json:"sshUser" yaml:"sshUser"`
+	SSHKeyName         string `json:"sshKeyName" yaml:"sshKeyName"`
+	SSHKey             []byte
 }
 
 // ExternalNodeConfig is a struct that is a collection of the node configurations
 type ExternalNodeConfig struct {
 	Nodes map[int][]*Node `json:"nodes" yaml:"nodes"`
+}
+
+func formatAddress(ipAddress string) string {
+	if strings.Contains(ipAddress, ":") {
+		return "[" + ipAddress + "]:22"
+	}
+
+	return ipAddress + ":22"
 }
 
 // SCPFileToNode copies a file from the local machine to the specific node created.
@@ -55,28 +66,33 @@ func (n *Node) SCPFileToNode(localPath, remotePath string) error {
 	}
 	cfg.SetDefaults()
 
-	client, err := ssh.Dial("tcp", n.PublicIPAddress+":22", cfg)
+	ipAddress := formatAddress(n.PublicIPAddress)
+	client, err := ssh.Dial("tcp", ipAddress, cfg)
 	if err != nil {
 		return err
 	}
+
 	defer client.Close()
 
 	sftp, err := sftp.NewClient(client)
 	if err != nil {
 		return err
 	}
+
 	defer sftp.Close()
 
 	localFile, err := os.Open(localPath)
 	if err != nil {
 		return err
 	}
+
 	defer localFile.Close()
 
 	remoteFile, err := sftp.Create(remotePath)
 	if err != nil {
 		return err
 	}
+
 	defer remoteFile.Close()
 
 	if _, err := remoteFile.ReadFrom(localFile); err != nil {
@@ -103,9 +119,11 @@ func (n *Node) ExecuteCommand(command string) (string, error) {
 		Auth:            auths,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
+
 	cfg.SetDefaults()
 
-	client, err := ssh.Dial("tcp", n.PublicIPAddress+":22", cfg)
+	ipAddress := formatAddress(n.PublicIPAddress)
+	client, err := ssh.Dial("tcp", ipAddress, cfg)
 	if err != nil {
 		return outputString, err
 	}

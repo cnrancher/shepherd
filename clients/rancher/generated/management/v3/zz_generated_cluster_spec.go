@@ -6,6 +6,7 @@ const (
 	ClusterSpecFieldAKSConfig                                            = "aksConfig"
 	ClusterSpecFieldAgentEnvVars                                         = "agentEnvVars"
 	ClusterSpecFieldAgentImageOverride                                   = "agentImageOverride"
+	ClusterSpecFieldAliConfig                                            = "aliConfig"
 	ClusterSpecFieldAmazonElasticContainerServiceConfig                  = "amazonElasticContainerServiceConfig"
 	ClusterSpecFieldAzureKubernetesServiceConfig                         = "azureKubernetesServiceConfig"
 	ClusterSpecFieldCCEConfig                                            = "cceConfig"
@@ -48,6 +49,7 @@ type ClusterSpec struct {
 	AKSConfig                                            *AKSClusterConfigSpec          `json:"aksConfig,omitempty" yaml:"aksConfig,omitempty"`
 	AgentEnvVars                                         []EnvVar                       `json:"agentEnvVars,omitempty" yaml:"agentEnvVars,omitempty"`
 	AgentImageOverride                                   string                         `json:"agentImageOverride,omitempty" yaml:"agentImageOverride,omitempty"`
+	AliConfig                                            *AliClusterConfigSpec          `json:"aliConfig,omitempty" yaml:"aliConfig,omitempty"`
 	AmazonElasticContainerServiceConfig                  map[string]interface{}         `json:"amazonElasticContainerServiceConfig,omitempty" yaml:"amazonElasticContainerServiceConfig,omitempty"`
 	AzureKubernetesServiceConfig                         map[string]interface{}         `json:"azureKubernetesServiceConfig,omitempty" yaml:"azureKubernetesServiceConfig,omitempty"`
 	CCEConfig                                            *CCEClusterConfigSpec          `json:"cceConfig,omitempty" yaml:"cceConfig,omitempty"`
