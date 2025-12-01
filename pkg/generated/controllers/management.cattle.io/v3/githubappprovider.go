@@ -23,17 +23,17 @@ import (
 	"github.com/rancher/shepherd/pkg/wrangler/pkg/generic"
 )
 
-// TemplateContentController interface for managing TemplateContent resources.
-type TemplateContentController interface {
-	generic.NonNamespacedControllerInterface[*v3.TemplateContent, *v3.TemplateContentList]
+// GithubAppProviderController interface for managing GithubAppProvider resources.
+type GithubAppProviderController interface {
+	generic.NonNamespacedControllerInterface[*v3.GithubAppProvider, *v3.GithubAppProviderList]
 }
 
-// TemplateContentClient interface for managing TemplateContent resources in Kubernetes.
-type TemplateContentClient interface {
-	generic.NonNamespacedClientInterface[*v3.TemplateContent, *v3.TemplateContentList]
+// GithubAppProviderClient interface for managing GithubAppProvider resources in Kubernetes.
+type GithubAppProviderClient interface {
+	generic.NonNamespacedClientInterface[*v3.GithubAppProvider, *v3.GithubAppProviderList]
 }
 
-// TemplateContentCache interface for retrieving TemplateContent resources in memory.
-type TemplateContentCache interface {
-	generic.NonNamespacedCacheInterface[*v3.TemplateContent]
+// GithubAppProviderCache interface for retrieving GithubAppProvider resources in memory.
+type GithubAppProviderCache interface {
+	generic.NonNamespacedCacheInterface[*v3.GithubAppProvider]
 }

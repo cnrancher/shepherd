@@ -34,31 +34,31 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// CatalogTemplateVersionController interface for managing CatalogTemplateVersion resources.
-type CatalogTemplateVersionController interface {
-	generic.ControllerInterface[*v3.CatalogTemplateVersion, *v3.CatalogTemplateVersionList]
+// OIDCClientController interface for managing OIDCClient resources.
+type OIDCClientController interface {
+	generic.NonNamespacedControllerInterface[*v3.OIDCClient, *v3.OIDCClientList]
 }
 
-// CatalogTemplateVersionClient interface for managing CatalogTemplateVersion resources in Kubernetes.
-type CatalogTemplateVersionClient interface {
-	generic.ClientInterface[*v3.CatalogTemplateVersion, *v3.CatalogTemplateVersionList]
+// OIDCClientClient interface for managing OIDCClient resources in Kubernetes.
+type OIDCClientClient interface {
+	generic.NonNamespacedClientInterface[*v3.OIDCClient, *v3.OIDCClientList]
 }
 
-// CatalogTemplateVersionCache interface for retrieving CatalogTemplateVersion resources in memory.
-type CatalogTemplateVersionCache interface {
-	generic.CacheInterface[*v3.CatalogTemplateVersion]
+// OIDCClientCache interface for retrieving OIDCClient resources in memory.
+type OIDCClientCache interface {
+	generic.NonNamespacedCacheInterface[*v3.OIDCClient]
 }
 
-// CatalogTemplateVersionStatusHandler is executed for every added or modified CatalogTemplateVersion. Should return the new status to be updated
-type CatalogTemplateVersionStatusHandler func(obj *v3.CatalogTemplateVersion, status v3.TemplateVersionStatus) (v3.TemplateVersionStatus, error)
+// OIDCClientStatusHandler is executed for every added or modified OIDCClient. Should return the new status to be updated
+type OIDCClientStatusHandler func(obj *v3.OIDCClient, status v3.OIDCClientStatus) (v3.OIDCClientStatus, error)
 
-// CatalogTemplateVersionGeneratingHandler is the top-level handler that is executed for every CatalogTemplateVersion event. It extends CatalogTemplateVersionStatusHandler by a returning a slice of child objects to be passed to apply.Apply
-type CatalogTemplateVersionGeneratingHandler func(obj *v3.CatalogTemplateVersion, status v3.TemplateVersionStatus) ([]runtime.Object, v3.TemplateVersionStatus, error)
+// OIDCClientGeneratingHandler is the top-level handler that is executed for every OIDCClient event. It extends OIDCClientStatusHandler by a returning a slice of child objects to be passed to apply.Apply
+type OIDCClientGeneratingHandler func(obj *v3.OIDCClient, status v3.OIDCClientStatus) ([]runtime.Object, v3.OIDCClientStatus, error)
 
-// RegisterCatalogTemplateVersionStatusHandler configures a CatalogTemplateVersionController to execute a CatalogTemplateVersionStatusHandler for every events observed.
+// RegisterOIDCClientStatusHandler configures a OIDCClientController to execute a OIDCClientStatusHandler for every events observed.
 // If a non-empty condition is provided, it will be updated in the status conditions for every handler execution
-func RegisterCatalogTemplateVersionStatusHandler(ctx context.Context, controller CatalogTemplateVersionController, condition condition.Cond, name string, handler CatalogTemplateVersionStatusHandler) {
-	statusHandler := &catalogTemplateVersionStatusHandler{
+func RegisterOIDCClientStatusHandler(ctx context.Context, controller OIDCClientController, condition condition.Cond, name string, handler OIDCClientStatusHandler) {
+	statusHandler := &oIDCClientStatusHandler{
 		client:    controller,
 		condition: condition,
 		handler:   handler,
@@ -66,31 +66,31 @@ func RegisterCatalogTemplateVersionStatusHandler(ctx context.Context, controller
 	controller.AddGenericHandler(ctx, name, generic.FromObjectHandlerToHandler(statusHandler.sync))
 }
 
-// RegisterCatalogTemplateVersionGeneratingHandler configures a CatalogTemplateVersionController to execute a CatalogTemplateVersionGeneratingHandler for every events observed, passing the returned objects to the provided apply.Apply.
+// RegisterOIDCClientGeneratingHandler configures a OIDCClientController to execute a OIDCClientGeneratingHandler for every events observed, passing the returned objects to the provided apply.Apply.
 // If a non-empty condition is provided, it will be updated in the status conditions for every handler execution
-func RegisterCatalogTemplateVersionGeneratingHandler(ctx context.Context, controller CatalogTemplateVersionController, apply apply.Apply,
-	condition condition.Cond, name string, handler CatalogTemplateVersionGeneratingHandler, opts *generic.GeneratingHandlerOptions) {
-	statusHandler := &catalogTemplateVersionGeneratingHandler{
-		CatalogTemplateVersionGeneratingHandler: handler,
-		apply:                                   apply,
-		name:                                    name,
-		gvk:                                     controller.GroupVersionKind(),
+func RegisterOIDCClientGeneratingHandler(ctx context.Context, controller OIDCClientController, apply apply.Apply,
+	condition condition.Cond, name string, handler OIDCClientGeneratingHandler, opts *generic.GeneratingHandlerOptions) {
+	statusHandler := &oIDCClientGeneratingHandler{
+		OIDCClientGeneratingHandler: handler,
+		apply:                       apply,
+		name:                        name,
+		gvk:                         controller.GroupVersionKind(),
 	}
 	if opts != nil {
 		statusHandler.opts = *opts
 	}
 	controller.OnChange(ctx, name, statusHandler.Remove)
-	RegisterCatalogTemplateVersionStatusHandler(ctx, controller, condition, name, statusHandler.Handle)
+	RegisterOIDCClientStatusHandler(ctx, controller, condition, name, statusHandler.Handle)
 }
 
-type catalogTemplateVersionStatusHandler struct {
-	client    CatalogTemplateVersionClient
+type oIDCClientStatusHandler struct {
+	client    OIDCClientClient
 	condition condition.Cond
-	handler   CatalogTemplateVersionStatusHandler
+	handler   OIDCClientStatusHandler
 }
 
 // sync is executed on every resource addition or modification. Executes the configured handlers and sends the updated status to the Kubernetes API
-func (a *catalogTemplateVersionStatusHandler) sync(key string, obj *v3.CatalogTemplateVersion) (*v3.CatalogTemplateVersion, error) {
+func (a *oIDCClientStatusHandler) sync(key string, obj *v3.OIDCClient) (*v3.OIDCClient, error) {
 	if obj == nil {
 		return obj, nil
 	}
@@ -129,8 +129,8 @@ func (a *catalogTemplateVersionStatusHandler) sync(key string, obj *v3.CatalogTe
 	return obj, err
 }
 
-type catalogTemplateVersionGeneratingHandler struct {
-	CatalogTemplateVersionGeneratingHandler
+type oIDCClientGeneratingHandler struct {
+	OIDCClientGeneratingHandler
 	apply apply.Apply
 	opts  generic.GeneratingHandlerOptions
 	gvk   schema.GroupVersionKind
@@ -139,12 +139,12 @@ type catalogTemplateVersionGeneratingHandler struct {
 }
 
 // Remove handles the observed deletion of a resource, cascade deleting every associated resource previously applied
-func (a *catalogTemplateVersionGeneratingHandler) Remove(key string, obj *v3.CatalogTemplateVersion) (*v3.CatalogTemplateVersion, error) {
+func (a *oIDCClientGeneratingHandler) Remove(key string, obj *v3.OIDCClient) (*v3.OIDCClient, error) {
 	if obj != nil {
 		return obj, nil
 	}
 
-	obj = &v3.CatalogTemplateVersion{}
+	obj = &v3.OIDCClient{}
 	obj.Namespace, obj.Name = kv.RSplit(key, "/")
 	obj.SetGroupVersionKind(a.gvk)
 
@@ -158,13 +158,13 @@ func (a *catalogTemplateVersionGeneratingHandler) Remove(key string, obj *v3.Cat
 		ApplyObjects()
 }
 
-// Handle executes the configured CatalogTemplateVersionGeneratingHandler and pass the resulting objects to apply.Apply, finally returning the new status of the resource
-func (a *catalogTemplateVersionGeneratingHandler) Handle(obj *v3.CatalogTemplateVersion, status v3.TemplateVersionStatus) (v3.TemplateVersionStatus, error) {
+// Handle executes the configured OIDCClientGeneratingHandler and pass the resulting objects to apply.Apply, finally returning the new status of the resource
+func (a *oIDCClientGeneratingHandler) Handle(obj *v3.OIDCClient, status v3.OIDCClientStatus) (v3.OIDCClientStatus, error) {
 	if !obj.DeletionTimestamp.IsZero() {
 		return status, nil
 	}
 
-	objs, newStatus, err := a.CatalogTemplateVersionGeneratingHandler(obj, status)
+	objs, newStatus, err := a.OIDCClientGeneratingHandler(obj, status)
 	if err != nil {
 		return newStatus, err
 	}
@@ -185,7 +185,7 @@ func (a *catalogTemplateVersionGeneratingHandler) Handle(obj *v3.CatalogTemplate
 
 // isNewResourceVersion detects if a specific resource version was already successfully processed.
 // Only used if UniqueApplyForResourceVersion is set in generic.GeneratingHandlerOptions
-func (a *catalogTemplateVersionGeneratingHandler) isNewResourceVersion(obj *v3.CatalogTemplateVersion) bool {
+func (a *oIDCClientGeneratingHandler) isNewResourceVersion(obj *v3.OIDCClient) bool {
 	if !a.opts.UniqueApplyForResourceVersion {
 		return true
 	}
@@ -198,7 +198,7 @@ func (a *catalogTemplateVersionGeneratingHandler) isNewResourceVersion(obj *v3.C
 
 // storeResourceVersion keeps track of the latest resource version of an object for which Apply was executed
 // Only used if UniqueApplyForResourceVersion is set in generic.GeneratingHandlerOptions
-func (a *catalogTemplateVersionGeneratingHandler) storeResourceVersion(obj *v3.CatalogTemplateVersion) {
+func (a *oIDCClientGeneratingHandler) storeResourceVersion(obj *v3.OIDCClient) {
 	if !a.opts.UniqueApplyForResourceVersion {
 		return
 	}

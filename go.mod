@@ -5,9 +5,8 @@ go 1.24.0
 toolchain go1.24.5
 
 replace (
-	github.com/cnrancher/ack-operator => github.com/cnrancher/ack-operator v0.0.5-0.20250401014136-d5f811965a0c
-	github.com/rancher/norman => github.com/cnrancher/pandaria-norman v0.0.0-20241126075428-29e0d6ebb3d7
-	github.com/rancher/rancher/pkg/apis => github.com/cnrancher/pandaria/pkg/apis v0.0.0-20250402035512-7f97c10a5ec5
+	github.com/rancher/norman => github.com/cnrancher/pandaria-norman v0.0.0-20251127081138-81cc7c516057
+	github.com/rancher/rancher/pkg/apis => github.com/cnrancher/pandaria/pkg/apis v0.0.0-20251201034534-588ee0429b51
 )
 
 replace (
@@ -27,7 +26,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.63.88
 	github.com/aws/aws-sdk-go v1.55.5
-	github.com/cnrancher/cce-operator v0.6.0-beta.1
+	github.com/cnrancher/cce-operator v0.8.0
 	github.com/creasty/defaults v1.5.2
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/hashicorp/go-multierror v1.1.1
@@ -35,19 +34,19 @@ require (
 	github.com/hashicorp/hc-install v0.6.2
 	github.com/hashicorp/terraform-exec v0.20.0
 	github.com/hashicorp/terraform-json v0.20.0
-	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.123
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.166
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.5
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.52.0
-	github.com/rancher/aks-operator v1.13.0-rc.4
+	github.com/rancher/aks-operator v1.13.0
 	github.com/rancher/apiserver v0.7.0
-	github.com/rancher/eks-operator v1.13.0-rc.4
-	github.com/rancher/fleet/pkg/apis v0.14.0-rc.1
-	github.com/rancher/gke-operator v1.13.0-rc.3
+	github.com/rancher/eks-operator v1.13.0
+	github.com/rancher/fleet/pkg/apis v0.14.0
+	github.com/rancher/gke-operator v1.13.0
 	github.com/rancher/lasso v0.2.5
 	github.com/rancher/norman v0.7.1
 	github.com/rancher/rancher/pkg/apis v0.0.0-20251107181200-efcbd5d43f4e
-	github.com/rancher/rke v1.8.0-rc.4
+	github.com/rancher/rke v1.8.0
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20250710162344-185ff9f785cd
 	github.com/rancher/wrangler v1.1.2
 	github.com/rancher/wrangler/v3 v3.3.1
@@ -86,8 +85,8 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
-	github.com/cnrancher/ack-operator v0.0.5-0.20240709124229-11f7682e76c8 // indirect
-	github.com/cnrancher/tke-operator v0.0.0-20240709040941-2b6bd9b720ba // indirect
+	github.com/cnrancher/ack-operator v0.0.5-0.20250811071220-7e8593585464 // indirect
+	github.com/cnrancher/tke-operator v0.0.0-20250902073259-2ccb095bb3f5 // indirect
 	github.com/containerd/cgroups v1.1.0 // indirect
 	github.com/containerd/containerd v1.6.27 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
@@ -101,6 +100,7 @@ require (
 	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/fatih/camelcase v1.0.0 // indirect
+	github.com/fatih/color v1.18.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
@@ -109,6 +109,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
+	github.com/goccy/go-yaml v1.11.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
@@ -124,12 +125,14 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/json-iterator/go v1.1.13-0.20220915233716-71ac16282d12 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/kubereboot/kured v1.13.1 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matryer/moq v0.5.2 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mcuadros/go-version v0.0.0-20180611085657-6d5863ca60fa // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
@@ -154,6 +157,7 @@ require (
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
+	github.com/rancher/ali-operator v1.13.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/smartystreets/goconvey v1.8.1 // indirect
@@ -167,7 +171,7 @@ require (
 	go.etcd.io/etcd/client/pkg/v3 v3.6.4 // indirect
 	go.etcd.io/etcd/client/v2 v2.305.21 // indirect
 	go.etcd.io/etcd/client/v3 v3.6.4 // indirect
-	go.mongodb.org/mongo-driver v1.12.0 // indirect
+	go.mongodb.org/mongo-driver v1.13.1 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
@@ -184,6 +188,7 @@ require (
 	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/time v0.13.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
+	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251002232023-7c0ddcbb5797 // indirect
 	google.golang.org/grpc v1.75.1 // indirect

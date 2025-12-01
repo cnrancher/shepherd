@@ -102,6 +102,8 @@ func LoadCloudCredential(provider string) CloudCredential {
 
 		config.LoadConfig(AlibabaCredentialConfigurationFileKey, &alibabaCredentialConfig)
 		cloudCredential.AlibabaCredentialConfig = &alibabaCredentialConfig
+
+		return cloudCredential
 	case provider == providers.Huawei:
 		var huaweiCredentialConfig HuaweiCredentialConfig
 
