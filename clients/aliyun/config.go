@@ -44,6 +44,7 @@ type ECSConfig struct {
 	SpotDuration            string   `json:"spotDuration" yaml:"spotDuration"`
 	AliyunUser              string   `json:"aliyunUser" yaml:"aliyunUser"`
 	DockerVersion           string   `json:"dockerVersion" yaml:"dockerVersion"`
+	UserData                string   `json:"userData" yaml:"userData"`
 	System                  string   `json:"system" yaml:"system"`
 	OpenPorts               []string `json:"openPort" yaml:"openPort"`
 	Roles                   []string `json:"roles" yaml:"roles"`
