@@ -10,6 +10,8 @@ import (
 	"github.com/rancher/shepherd/clients/rancher"
 	v1 "github.com/rancher/shepherd/clients/rancher/v1"
 	"github.com/rancher/shepherd/extensions/defaults"
+	"github.com/rancher/shepherd/extensions/defaults/namespaces"
+	"github.com/rancher/shepherd/extensions/defaults/stevetypes"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
@@ -94,15 +96,15 @@ func AllMachineReady(client *rancher.Client, clusterID string, timeout time.Dura
 
 			for _, node := range nodes.Data {
 				machine, err := client.Steve.
-					SteveType(machineSteveResourceType).
-					ByID(fleetNamespace + "/" + node.Annotations[machineSteveAnnotation])
+					SteveType(stevetypes.Machine).
+					ByID(namespaces.FleetDefault + "/" + node.Annotations[machineSteveAnnotation])
 				if err != nil {
 					logrus.Warnf("Failed to get machine: %v", err) // PANDARIA
 					return false, err
 				}
 
 				if machine.State == nil {
-					logrus.Infof("Machine: %s state is nil", machine.Name)
+					logrus.Tracef("Machine: %s state is nil", machine.Name)
 					return false, nil
 				}
 
@@ -115,8 +117,6 @@ func AllMachineReady(client *rancher.Client, clusterID string, timeout time.Dura
 					return false, nil
 				}
 			}
-
-			logrus.Infof("All nodes in the cluster are running!")
 
 			return true, nil
 		})
@@ -138,8 +138,6 @@ func AllNodeDeleted(client *rancher.Client, ClusterID string) error {
 			}
 
 			if len(nodes.Data) == 0 {
-				logrus.Infof("All nodes in the cluster are deleted!")
-
 				return true, nil
 			}
 
@@ -165,8 +163,6 @@ func IsNodeDeleted(client *rancher.Client, nodeName, ClusterID string) error {
 			}
 
 			if len(node.Data) == 0 {
-				logrus.Infof("Node %s has been deleted!", nodeName)
-
 				return true, nil
 			}
 

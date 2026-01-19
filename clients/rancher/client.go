@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/rancher/shepherd/clients/rancher/auth"
+
 	"github.com/pkg/errors"
 	"github.com/rancher/norman/httperror"
 	"github.com/rancher/shepherd/clients/aliyun"
@@ -51,6 +53,8 @@ type Client struct {
 	WranglerContext *wrangler.Context
 	// CLI is the client used to interact with the Rancher CLI
 	CLI *ranchercli.Client
+	// Session is the session object used by the client to track all the resources being created by the client.
+	Auth *auth.Client
 	// Session is the session object used by the client to track all the resources being created by the client.
 	Session *session.Session
 	// Flags is the environment flags used by the client to test selectively against a rancher instance.
@@ -139,6 +143,12 @@ func newClient(c *Client, bearerToken string, config *Config, session *session.S
 	}
 
 	c.WranglerContext = wranglerContext
+	auth, err := auth.NewClient(c.Management, session)
+	if err != nil {
+		return nil, err
+	}
+
+	c.Auth = auth
 
 	splitBearerKey := strings.Split(bearerToken, ":")
 	token, err := c.Management.Token.ByID(splitBearerKey[0])
@@ -223,12 +233,23 @@ func (c *Client) doAction(endpoint, action string, body []byte, output interface
 // AsUser accepts a user object, and then creates a token for said `user`. Then it instantiates and returns a Client using the token created.
 // This function uses the login action, and user must have a correct username and password combination.
 func (c *Client) AsUser(user *management.User) (*Client, error) {
-	returnedToken, err := c.login(user)
+	returnedToken, err := c.login(user, auth.LocalAuth)
 	if err != nil {
 		return nil, err
 	}
 
 	return NewClient(returnedToken.Token, c.Session)
+}
+
+// AsAuthUser accepts a user object, and then creates a token for said `user`. Then it instantiates and returns a Client using the token created.
+// This function uses the login action, and user must have a correct username and password combination.
+func (c *Client) AsAuthUser(user *management.User, authProvider auth.Provider) (*Client, error) {
+	returnedToken, err := c.login(user, authProvider)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewClientForConfig(returnedToken.Token, c.RancherConfig, c.Session)
 }
 
 // ReLogin reinstantiates a Client to update its API schema. This function would be used for a non admin user that needs to be
@@ -237,10 +258,22 @@ func (c *Client) ReLogin() (*Client, error) {
 	return NewClient(c.restConfig.BearerToken, c.Session)
 }
 
+// ReLoginForconfig reinstantiates a Client to update its API schema with the same Config. This function would be used for a non admin user that needs to be
+// "reloaded" inorder to have updated permissions for certain resources.
+func (c *Client) ReLoginForConfig(rancherConfig *Config) (*Client, error) {
+	return NewClientForConfig(c.restConfig.BearerToken, rancherConfig, c.Session)
+}
+
 // WithSession accepts a session.Session and instantiates a new Client to reference this new session.Session. The main purpose is to use it
 // when created "sub sessions" when tracking resources created at a test case scope.
 func (c *Client) WithSession(session *session.Session) (*Client, error) {
 	return NewClient(c.restConfig.BearerToken, session)
+}
+
+// WithSessionForConfig accepts a Config and a session.Session and instantiates a new Client to reference this new session.Session. The main purpose is to use it
+// when created "sub sessions" when tracking resources created at a test case scope.
+func (c *Client) WithSessionForConfig(rancherConfig *Config, session *session.Session) (*Client, error) {
+	return NewClientForConfig(c.restConfig.BearerToken, rancherConfig, session)
 }
 
 // GetClusterCatalogClient is a function that takes a clusterID and instantiates a catalog client to directly communicate with that specific cluster.
@@ -364,7 +397,7 @@ func (c *Client) GetManagementWatchInterface(schemaType string, opts metav1.List
 }
 
 // login uses the local authentication provider to authenticate a user and return the subsequent token.
-func (c *Client) login(user *management.User) (*management.Token, error) {
+func (c *Client) login(user *management.User, provider auth.Provider) (*management.Token, error) {
 	token := &management.Token{}
 	bodyContent, err := json.Marshal(struct {
 		Username string `json:"username"`
@@ -376,7 +409,8 @@ func (c *Client) login(user *management.User) (*management.Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = c.doAction("/v3-public/localProviders/local", "login", bodyContent, token)
+	endpoint := fmt.Sprintf("/v3-public/%vProviders/%v", provider.String(), strings.ToLower(provider.String()))
+	err = c.doAction(endpoint, "login", bodyContent, token)
 	if err != nil {
 		return nil, err
 	}
