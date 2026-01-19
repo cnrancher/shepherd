@@ -17,6 +17,7 @@ const (
 	AciNetworkProviderFieldApicHosts                            = "apicHosts"
 	AciNetworkProviderFieldApicRefreshTickerAdjust              = "apicRefreshTickerAdjust"
 	AciNetworkProviderFieldApicRefreshTime                      = "apicRefreshTime"
+	AciNetworkProviderFieldApicRequestRetryDelay                = "apicRequestRetryDelay"
 	AciNetworkProviderFieldApicSubscriptionDelay                = "apicSubscriptionDelay"
 	AciNetworkProviderFieldApicUserCrt                          = "apicUserCrt"
 	AciNetworkProviderFieldApicUserKey                          = "apicUserKey"
@@ -30,13 +31,17 @@ const (
 	AciNetworkProviderFieldDisableWaitForNetwork                = "disableWaitForNetwork"
 	AciNetworkProviderFieldDropLogDisableEvents                 = "dropLogDisableEvents"
 	AciNetworkProviderFieldDropLogEnable                        = "dropLogEnable"
+	AciNetworkProviderFieldDropLogOpflexRedirectDropLogs        = "dropLogOpflexRedirectDropLogs"
 	AciNetworkProviderFieldDurationWaitForNetwork               = "durationWaitForNetwork"
 	AciNetworkProviderFieldDynamicExternalSubnet                = "externDynamic"
+	AciNetworkProviderFieldEnableApicRequestRetryDelay          = "enableApicRequestRetryDelay"
 	AciNetworkProviderFieldEnableEndpointSlice                  = "enableEndpointSlice"
 	AciNetworkProviderFieldEnableHppDirect                      = "enableHppDirect"
 	AciNetworkProviderFieldEnableOpflexAgentReconnect           = "enableOpflexAgentReconnect"
 	AciNetworkProviderFieldEncapType                            = "encapType"
 	AciNetworkProviderFieldEpRegistry                           = "epRegistry"
+	AciNetworkProviderFieldEpgResolvePrioritize                 = "epgResolvePrioritize"
+	AciNetworkProviderFieldForceEpUndeclares                    = "forceEpUndeclares"
 	AciNetworkProviderFieldGbpPodSubnet                         = "gbpPodSubnet"
 	AciNetworkProviderFieldHostAgentLogLevel                    = "hostAgentLogLevel"
 	AciNetworkProviderFieldHppOptimization                      = "hppOptimization"
@@ -87,6 +92,7 @@ const (
 	AciNetworkProviderFieldOverlayVRFName                       = "overlayVrfName"
 	AciNetworkProviderFieldPBRTrackingNonSnat                   = "pbrTrackingNonSnat"
 	AciNetworkProviderFieldPodSubnetChunkSize                   = "podSubnetChunkSize"
+	AciNetworkProviderFieldProactiveConf                        = "proactiveConf"
 	AciNetworkProviderFieldRunGbpContainer                      = "runGbpContainer"
 	AciNetworkProviderFieldRunOpflexServerContainer             = "runOpflexServerContainer"
 	AciNetworkProviderFieldServiceGraphEndpointAddDelay         = "serviceGraphEndpointAddDelay"
@@ -138,6 +144,7 @@ type AciNetworkProvider struct {
 	ApicHosts                            []string            `json:"apicHosts,omitempty" yaml:"apicHosts,omitempty"`
 	ApicRefreshTickerAdjust              string              `json:"apicRefreshTickerAdjust,omitempty" yaml:"apicRefreshTickerAdjust,omitempty"`
 	ApicRefreshTime                      string              `json:"apicRefreshTime,omitempty" yaml:"apicRefreshTime,omitempty"`
+	ApicRequestRetryDelay                string              `json:"apicRequestRetryDelay,omitempty" yaml:"apicRequestRetryDelay,omitempty"`
 	ApicSubscriptionDelay                string              `json:"apicSubscriptionDelay,omitempty" yaml:"apicSubscriptionDelay,omitempty"`
 	ApicUserCrt                          string              `json:"apicUserCrt,omitempty" yaml:"apicUserCrt,omitempty"`
 	ApicUserKey                          string              `json:"apicUserKey,omitempty" yaml:"apicUserKey,omitempty"`
@@ -151,13 +158,17 @@ type AciNetworkProvider struct {
 	DisableWaitForNetwork                string              `json:"disableWaitForNetwork,omitempty" yaml:"disableWaitForNetwork,omitempty"`
 	DropLogDisableEvents                 string              `json:"dropLogDisableEvents,omitempty" yaml:"dropLogDisableEvents,omitempty"`
 	DropLogEnable                        string              `json:"dropLogEnable,omitempty" yaml:"dropLogEnable,omitempty"`
+	DropLogOpflexRedirectDropLogs        string              `json:"dropLogOpflexRedirectDropLogs,omitempty" yaml:"dropLogOpflexRedirectDropLogs,omitempty"`
 	DurationWaitForNetwork               string              `json:"durationWaitForNetwork,omitempty" yaml:"durationWaitForNetwork,omitempty"`
 	DynamicExternalSubnet                string              `json:"externDynamic,omitempty" yaml:"externDynamic,omitempty"`
+	EnableApicRequestRetryDelay          string              `json:"enableApicRequestRetryDelay,omitempty" yaml:"enableApicRequestRetryDelay,omitempty"`
 	EnableEndpointSlice                  string              `json:"enableEndpointSlice,omitempty" yaml:"enableEndpointSlice,omitempty"`
 	EnableHppDirect                      string              `json:"enableHppDirect,omitempty" yaml:"enableHppDirect,omitempty"`
 	EnableOpflexAgentReconnect           string              `json:"enableOpflexAgentReconnect,omitempty" yaml:"enableOpflexAgentReconnect,omitempty"`
 	EncapType                            string              `json:"encapType,omitempty" yaml:"encapType,omitempty"`
 	EpRegistry                           string              `json:"epRegistry,omitempty" yaml:"epRegistry,omitempty"`
+	EpgResolvePrioritize                 string              `json:"epgResolvePrioritize,omitempty" yaml:"epgResolvePrioritize,omitempty"`
+	ForceEpUndeclares                    string              `json:"forceEpUndeclares,omitempty" yaml:"forceEpUndeclares,omitempty"`
 	GbpPodSubnet                         string              `json:"gbpPodSubnet,omitempty" yaml:"gbpPodSubnet,omitempty"`
 	HostAgentLogLevel                    string              `json:"hostAgentLogLevel,omitempty" yaml:"hostAgentLogLevel,omitempty"`
 	HppOptimization                      string              `json:"hppOptimization,omitempty" yaml:"hppOptimization,omitempty"`
@@ -208,6 +219,7 @@ type AciNetworkProvider struct {
 	OverlayVRFName                       string              `json:"overlayVrfName,omitempty" yaml:"overlayVrfName,omitempty"`
 	PBRTrackingNonSnat                   string              `json:"pbrTrackingNonSnat,omitempty" yaml:"pbrTrackingNonSnat,omitempty"`
 	PodSubnetChunkSize                   string              `json:"podSubnetChunkSize,omitempty" yaml:"podSubnetChunkSize,omitempty"`
+	ProactiveConf                        string              `json:"proactiveConf,omitempty" yaml:"proactiveConf,omitempty"`
 	RunGbpContainer                      string              `json:"runGbpContainer,omitempty" yaml:"runGbpContainer,omitempty"`
 	RunOpflexServerContainer             string              `json:"runOpflexServerContainer,omitempty" yaml:"runOpflexServerContainer,omitempty"`
 	ServiceGraphEndpointAddDelay         string              `json:"serviceGraphEndpointAddDelay,omitempty" yaml:"serviceGraphEndpointAddDelay,omitempty"`

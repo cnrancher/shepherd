@@ -16,6 +16,7 @@ import (
 	"github.com/rancher/lasso/pkg/dynamic"
 	"github.com/rancher/norman/types"
 	clusterv3api "github.com/rancher/rancher/pkg/apis/cluster.cattle.io/v3"
+	extv1api "github.com/rancher/rancher/pkg/apis/ext.cattle.io/v1"
 	managementv3api "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/shepherd/pkg/generated/controllers/apps"
 	appsv1 "github.com/rancher/shepherd/pkg/generated/controllers/apps/v1"
@@ -55,6 +56,7 @@ var (
 	localSchemeBuilder = runtime.SchemeBuilder{
 		managementv3api.AddToScheme,
 		clusterv3api.AddToScheme,
+		extv1api.AddToScheme,
 	}
 	AddToScheme = localSchemeBuilder.AddToScheme
 	Scheme      = runtime.NewScheme()
@@ -160,8 +162,15 @@ func (w *Context) Start(ctx context.Context) error {
 
 func enableProtobuf(cfg *rest.Config) *rest.Config {
 	cpy := rest.CopyConfig(cfg)
-	cpy.AcceptContentTypes = "application/vnd.kubernetes.protobuf, application/json"
-	cpy.ContentType = "application/json"
+
+	if os.Getenv("DISABLE_PROTOBUF") == "true" {
+		cpy.AcceptContentTypes = "application/json"
+		cpy.ContentType = "application/json"
+	} else {
+		cpy.AcceptContentTypes = "application/vnd.kubernetes.protobuf, application/json"
+		cpy.ContentType = "application/json"
+	}
+
 	return cpy
 }
 
