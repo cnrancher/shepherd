@@ -19,13 +19,13 @@ replace (
 	k8s.io/client-go => k8s.io/client-go v0.34.1
 	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.34.1
 	k8s.io/kubectl => k8s.io/kubectl v0.34.1
-	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.10.2
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.10.6
 )
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/aliyun/alibaba-cloud-sdk-go v1.63.88
-	github.com/aws/aws-sdk-go v1.55.5
+	github.com/aws/aws-sdk-go v1.55.8
 	github.com/cnrancher/cce-operator v0.8.0
 	github.com/creasty/defaults v1.5.2
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
@@ -39,7 +39,7 @@ require (
 	github.com/pkg/sftp v1.13.5
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.52.0
 	github.com/rancher/aks-operator v1.13.0
-	github.com/rancher/apiserver v0.7.0
+	github.com/rancher/apiserver v0.7.7
 	github.com/rancher/eks-operator v1.13.0
 	github.com/rancher/fleet/pkg/apis v0.14.0
 	github.com/rancher/gke-operator v1.13.0
@@ -47,11 +47,11 @@ require (
 	github.com/rancher/norman v0.7.1
 	github.com/rancher/rancher/pkg/apis v0.0.0-20251107181200-efcbd5d43f4e
 	github.com/rancher/rke v1.8.0
-	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20250710162344-185ff9f785cd
+	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20250930163923-f2c9e60b1078
 	github.com/rancher/wrangler v1.1.2
 	github.com/rancher/wrangler/v3 v3.3.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cobra v1.9.1
+	github.com/spf13/cobra v1.10.1
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.715
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cvm v1.0.715
 	golang.org/x/crypto v0.43.0
@@ -63,7 +63,7 @@ require (
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-aggregator v0.34.1
 	k8s.io/kubectl v0.34.1
-	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
+	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4
 	sigs.k8s.io/cluster-api v1.10.6
 	sigs.k8s.io/yaml v1.6.0
 )
@@ -84,7 +84,7 @@ require (
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
-	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cnrancher/ack-operator v0.0.5-0.20250811071220-7e8593585464 // indirect
 	github.com/cnrancher/tke-operator v0.0.0-20250902073259-2ccb095bb3f5 // indirect
 	github.com/containerd/cgroups v1.1.0 // indirect
@@ -162,7 +162,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/smartystreets/goconvey v1.8.1 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
