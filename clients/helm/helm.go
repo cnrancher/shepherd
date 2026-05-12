@@ -1,6 +1,7 @@
 package helm
 
 import (
+	"encoding/json"
 	"os/exec"
 
 	"github.com/pkg/errors"
@@ -103,4 +104,67 @@ func AddHelmRepo(name, url string) error {
 	}
 
 	return nil
+}
+
+// UpdateHelmRepo updates the specified helm repository using the helm repo update command.
+func UpdateHelmRepo(name string) error {
+	msg, err := exec.Command(helmCmd, "repo", "update", name).CombinedOutput()
+	if err != nil {
+		return errors.Wrap(err, "UpdateHelmRepo: "+string(msg))
+	}
+
+	return nil
+}
+
+// IsReleaseExists checks if a Helm release with the given releaseName exists in the specified namespace.
+func IsReleaseExists(releaseName, namespace string) (bool, string, error) {
+
+	commandArgs := []string{
+		"list",
+		"--namespace",
+		namespace,
+		"--filter",
+		releaseName,
+		"--output",
+		"json",
+	}
+
+	msg, err := exec.Command(helmCmd, commandArgs...).CombinedOutput()
+	if err != nil {
+		return false, "", errors.Wrap(err, "IsReleaseExists: "+string(msg))
+	}
+
+	if string(msg) == "[]" || len(msg) == 0 {
+		return false, "", nil
+	}
+
+	return true, string(msg), nil
+}
+
+// GetAppVersion gets the app version of a given releaseName in the specified namespace
+func GetAppVersion(releaseName, namespace string) (string, error) {
+	exists, msg, err := IsReleaseExists(releaseName, namespace)
+	if err != nil {
+		return "", err
+	}
+	if !exists {
+		return "", errors.New("release does not exist")
+	}
+
+	var releases []struct {
+		Name       string `json:"name"`
+		AppVersion string `json:"app_version"`
+	}
+
+	if err := json.Unmarshal([]byte(msg), &releases); err != nil {
+		return "", errors.Wrap(err, "GetAppVersion: failed to unmarshal json")
+	}
+
+	for _, r := range releases {
+		if r.Name == releaseName {
+			return r.AppVersion, nil
+		}
+	}
+
+	return "", errors.New("release not found in list output")
 }
