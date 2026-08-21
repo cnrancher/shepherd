@@ -36,36 +36,45 @@ const (
 	ClusterSpecFieldRke2Config                                           = "rke2Config"
 	ClusterSpecFieldSystemDefaultRegistry                                = "systemDefaultRegistry"
 	ClusterSpecFieldTKEConfig                                            = "tkeConfig"
+	ClusterSpecFieldWebhookDeploymentCustomization                       = "webhookDeploymentCustomization"
 	ClusterSpecFieldWindowsPreferedCluster                               = "windowsPreferedCluster"
 )
 
 type ClusterSpec struct {
-	AKSConfig                                            *AKSClusterConfigSpec         `json:"aksConfig,omitempty" yaml:"aksConfig,omitempty"`
-	AgentEnvVars                                         []EnvVar                      `json:"agentEnvVars,omitempty" yaml:"agentEnvVars,omitempty"`
-	AgentImageOverride                                   string                        `json:"agentImageOverride,omitempty" yaml:"agentImageOverride,omitempty"`
-	AliConfig                                            *AliClusterConfigSpec         `json:"aliConfig,omitempty" yaml:"aliConfig,omitempty"`
-	AmazonElasticContainerServiceConfig                  map[string]interface{}        `json:"amazonElasticContainerServiceConfig,omitempty" yaml:"amazonElasticContainerServiceConfig,omitempty"`
-	AzureKubernetesServiceConfig                         map[string]interface{}        `json:"azureKubernetesServiceConfig,omitempty" yaml:"azureKubernetesServiceConfig,omitempty"`
-	ClusterAgentDeploymentCustomization                  *AgentDeploymentCustomization `json:"clusterAgentDeploymentCustomization,omitempty" yaml:"clusterAgentDeploymentCustomization,omitempty"`
-	ClusterSecrets                                       *ClusterSecrets               `json:"clusterSecrets,omitempty" yaml:"clusterSecrets,omitempty"`
-	DefaultClusterRoleForProjectMembers                  string                        `json:"defaultClusterRoleForProjectMembers,omitempty" yaml:"defaultClusterRoleForProjectMembers,omitempty"`
-	DefaultPodSecurityAdmissionConfigurationTemplateName string                        `json:"defaultPodSecurityAdmissionConfigurationTemplateName,omitempty" yaml:"defaultPodSecurityAdmissionConfigurationTemplateName,omitempty"`
-	Description                                          string                        `json:"description,omitempty" yaml:"description,omitempty"`
-	DesiredAgentImage                                    string                        `json:"desiredAgentImage,omitempty" yaml:"desiredAgentImage,omitempty"`
-	DesiredAuthImage                                     string                        `json:"desiredAuthImage,omitempty" yaml:"desiredAuthImage,omitempty"`
-	DisplayName                                          string                        `json:"displayName,omitempty" yaml:"displayName,omitempty"`
-	DockerRootDir                                        string                        `json:"dockerRootDir,omitempty" yaml:"dockerRootDir,omitempty"`
-	EKSConfig                                            *EKSClusterConfigSpec         `json:"eksConfig,omitempty" yaml:"eksConfig,omitempty"`
-	EnableNetworkPolicy                                  *bool                         `json:"enableNetworkPolicy,omitempty" yaml:"enableNetworkPolicy,omitempty"`
-	FleetAgentDeploymentCustomization                    *AgentDeploymentCustomization `json:"fleetAgentDeploymentCustomization,omitempty" yaml:"fleetAgentDeploymentCustomization,omitempty"`
-	FleetWorkspaceName                                   string                        `json:"fleetWorkspaceName,omitempty" yaml:"fleetWorkspaceName,omitempty"`
-	GKEConfig                                            *GKEClusterConfigSpec         `json:"gkeConfig,omitempty" yaml:"gkeConfig,omitempty"`
-	GenericEngineConfig                                  map[string]interface{}        `json:"genericEngineConfig,omitempty" yaml:"genericEngineConfig,omitempty"`
-	GoogleKubernetesEngineConfig                         map[string]interface{}        `json:"googleKubernetesEngineConfig,omitempty" yaml:"googleKubernetesEngineConfig,omitempty"`
-	ImportedConfig                                       *ImportedConfig               `json:"importedConfig,omitempty" yaml:"importedConfig,omitempty"`
-	Internal                                             bool                          `json:"internal,omitempty" yaml:"internal,omitempty"`
-	K3sConfig                                            *K3sConfig                    `json:"k3sConfig,omitempty" yaml:"k3sConfig,omitempty"`
-	LocalClusterAuthEndpoint                             *LocalClusterAuthEndpoint     `json:"localClusterAuthEndpoint,omitempty" yaml:"localClusterAuthEndpoint,omitempty"`
-	Rke2Config                                           *Rke2Config                   `json:"rke2Config,omitempty" yaml:"rke2Config,omitempty"`
-	WindowsPreferedCluster                               bool                          `json:"windowsPreferedCluster,omitempty" yaml:"windowsPreferedCluster,omitempty"`
+	ACKConfig                                            *ACKClusterConfigSpec           `json:"ackConfig,omitempty" yaml:"ackConfig,omitempty"`
+	AKSConfig                                            *AKSClusterConfigSpec           `json:"aksConfig,omitempty" yaml:"aksConfig,omitempty"`
+	AgentEnvVars                                         []EnvVar                        `json:"agentEnvVars,omitempty" yaml:"agentEnvVars,omitempty"`
+	AgentImageOverride                                   string                          `json:"agentImageOverride,omitempty" yaml:"agentImageOverride,omitempty"`
+	AliConfig                                            *AliClusterConfigSpec           `json:"aliConfig,omitempty" yaml:"aliConfig,omitempty"`
+	AmazonElasticContainerServiceConfig                  map[string]interface{}          `json:"amazonElasticContainerServiceConfig,omitempty" yaml:"amazonElasticContainerServiceConfig,omitempty"`
+	AzureKubernetesServiceConfig                         map[string]interface{}          `json:"azureKubernetesServiceConfig,omitempty" yaml:"azureKubernetesServiceConfig,omitempty"`
+	CCEConfig                                            *CCEClusterConfigSpec           `json:"cceConfig,omitempty" yaml:"cceConfig,omitempty"`
+	ClusterAgentDeploymentCustomization                  *AgentDeploymentCustomization   `json:"clusterAgentDeploymentCustomization,omitempty" yaml:"clusterAgentDeploymentCustomization,omitempty"`
+	ClusterSecrets                                       *ClusterSecrets                 `json:"clusterSecrets,omitempty" yaml:"clusterSecrets,omitempty"`
+	DefaultClusterRoleForProjectMembers                  string                          `json:"defaultClusterRoleForProjectMembers,omitempty" yaml:"defaultClusterRoleForProjectMembers,omitempty"`
+	DefaultPodSecurityAdmissionConfigurationTemplateName string                          `json:"defaultPodSecurityAdmissionConfigurationTemplateName,omitempty" yaml:"defaultPodSecurityAdmissionConfigurationTemplateName,omitempty"`
+	Description                                          string                          `json:"description,omitempty" yaml:"description,omitempty"`
+	DesiredAgentImage                                    string                          `json:"desiredAgentImage,omitempty" yaml:"desiredAgentImage,omitempty"`
+	DesiredAuthImage                                     string                          `json:"desiredAuthImage,omitempty" yaml:"desiredAuthImage,omitempty"`
+	DisplayName                                          string                          `json:"displayName,omitempty" yaml:"displayName,omitempty"`
+	DockerRootDir                                        string                          `json:"dockerRootDir,omitempty" yaml:"dockerRootDir,omitempty"`
+	EKSConfig                                            *EKSClusterConfigSpec           `json:"eksConfig,omitempty" yaml:"eksConfig,omitempty"`
+	EnableGPUManagement                                  bool                            `json:"enableGPUManagement,omitempty" yaml:"enableGPUManagement,omitempty"`
+	EnableNetworkPolicy                                  *bool                           `json:"enableNetworkPolicy,omitempty" yaml:"enableNetworkPolicy,omitempty"`
+	ExternalFlags                                        *ExternalFlags                  `json:"externalFlags,omitempty" yaml:"externalFlags,omitempty"`
+	FleetAgentDeploymentCustomization                    *AgentDeploymentCustomization   `json:"fleetAgentDeploymentCustomization,omitempty" yaml:"fleetAgentDeploymentCustomization,omitempty"`
+	FleetWorkspaceName                                   string                          `json:"fleetWorkspaceName,omitempty" yaml:"fleetWorkspaceName,omitempty"`
+	FluentdLogDir                                        string                          `json:"fluentdLogDir,omitempty" yaml:"fluentdLogDir,omitempty"`
+	GKEConfig                                            *GKEClusterConfigSpec           `json:"gkeConfig,omitempty" yaml:"gkeConfig,omitempty"`
+	GenericEngineConfig                                  map[string]interface{}          `json:"genericEngineConfig,omitempty" yaml:"genericEngineConfig,omitempty"`
+	GoogleKubernetesEngineConfig                         map[string]interface{}          `json:"googleKubernetesEngineConfig,omitempty" yaml:"googleKubernetesEngineConfig,omitempty"`
+	ImportedConfig                                       *ImportedConfig                 `json:"importedConfig,omitempty" yaml:"importedConfig,omitempty"`
+	Internal                                             bool                            `json:"internal,omitempty" yaml:"internal,omitempty"`
+	K3sConfig                                            *K3sConfig                      `json:"k3sConfig,omitempty" yaml:"k3sConfig,omitempty"`
+	LocalClusterAuthEndpoint                             *LocalClusterAuthEndpoint       `json:"localClusterAuthEndpoint,omitempty" yaml:"localClusterAuthEndpoint,omitempty"`
+	Rke2Config                                           *Rke2Config                     `json:"rke2Config,omitempty" yaml:"rke2Config,omitempty"`
+	SystemDefaultRegistry                                string                          `json:"systemDefaultRegistry,omitempty" yaml:"systemDefaultRegistry,omitempty"`
+	TKEConfig                                            *TKEClusterConfigSpec           `json:"tkeConfig,omitempty" yaml:"tkeConfig,omitempty"`
+	WebhookDeploymentCustomization                       *WebhookDeploymentCustomization `json:"webhookDeploymentCustomization,omitempty" yaml:"webhookDeploymentCustomization,omitempty"`
+	WindowsPreferedCluster                               bool                            `json:"windowsPreferedCluster,omitempty" yaml:"windowsPreferedCluster,omitempty"`
 }

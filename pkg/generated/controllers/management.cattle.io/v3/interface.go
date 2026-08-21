@@ -66,7 +66,6 @@ type Interface interface {
 	OIDCClient() OIDCClientController
 	OIDCProvider() OIDCProviderController
 	OpenLdapProvider() OpenLdapProviderController
-	OperatorSetting() OperatorSettingController
 	PodSecurityAdmissionConfigurationTemplate() PodSecurityAdmissionConfigurationTemplateController
 	Preference() PreferenceController
 	Principal() PrincipalController
@@ -231,10 +230,6 @@ func (v *version) OIDCProvider() OIDCProviderController {
 
 func (v *version) OpenLdapProvider() OpenLdapProviderController {
 	return generic.NewNonNamespacedController[*v3.OpenLdapProvider, *v3.OpenLdapProviderList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "OpenLdapProvider"}, "openldapproviders", v.controllerFactory, v.ts)
-}
-
-func (v *version) OperatorSetting() OperatorSettingController {
-	return generic.NewNonNamespacedController[*v3.OperatorSetting, *v3.OperatorSettingList](schema.GroupVersionKind{Group: "management.cattle.io", Version: "v3", Kind: "OperatorSetting"}, "operatorsettings", v.controllerFactory, v.ts)
 }
 
 func (v *version) PodSecurityAdmissionConfigurationTemplate() PodSecurityAdmissionConfigurationTemplateController {

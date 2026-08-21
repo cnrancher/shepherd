@@ -13,6 +13,7 @@ const (
 	TKEClusterConfigSpecFieldRegion                  = "region"
 	TKEClusterConfigSpecFieldRunInstancesForNode     = "runInstancesForNode"
 	TKEClusterConfigSpecFieldTKECredentialSecret     = "tkeCredentialSecret"
+	TKEClusterConfigSpecFieldVirtualNodePoolList     = "virtualNodePoolList"
 )
 
 type TKEClusterConfigSpec struct {
@@ -27,4 +28,5 @@ type TKEClusterConfigSpec struct {
 	Region                  string                   `json:"region,omitempty" yaml:"region,omitempty"`
 	RunInstancesForNode     *RunInstancesForNode     `json:"runInstancesForNode,omitempty" yaml:"runInstancesForNode,omitempty"`
 	TKECredentialSecret     string                   `json:"tkeCredentialSecret,omitempty" yaml:"tkeCredentialSecret,omitempty"`
+	VirtualNodePoolList     []VirtualNodePoolDetail  `json:"virtualNodePoolList,omitempty" yaml:"virtualNodePoolList,omitempty"`
 }

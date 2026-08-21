@@ -14,6 +14,7 @@ const (
 	NodePoolDetailFieldOsCustomizeType      = "osCustomizeType"
 	NodePoolDetailFieldTags                 = "tags"
 	NodePoolDetailFieldTaints               = "taints"
+	NodePoolDetailFieldUserScript           = "userScript"
 )
 
 type NodePoolDetail struct {
@@ -29,4 +30,5 @@ type NodePoolDetail struct {
 	OsCustomizeType      string                `json:"osCustomizeType,omitempty" yaml:"osCustomizeType,omitempty"`
 	Tags                 []string              `json:"tags,omitempty" yaml:"tags,omitempty"`
 	Taints               []string              `json:"taints,omitempty" yaml:"taints,omitempty"`
+	UserScript           string                `json:"userScript,omitempty" yaml:"userScript,omitempty"`
 }
