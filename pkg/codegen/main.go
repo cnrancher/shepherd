@@ -26,11 +26,13 @@ import (
 	controllergen "github.com/rancher/wrangler/v3/pkg/controller-gen"
 	"github.com/rancher/wrangler/v3/pkg/controller-gen/args"
 	appsv1 "k8s.io/api/apps/v1"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 
-	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	capi "sigs.k8s.io/cluster-api/api/core/v1beta2"
 )
 
 // main initializes the code generation for controllers and clients.
@@ -45,8 +47,10 @@ func main() {
 	}
 
 	generatedControllerPaths := map[string]string{
+		"AutoscalingControllerPath":        "./pkg/generated/controllers/autoscaling",
 		"AppsControllerPath":               "./pkg/generated/controllers/apps",
 		"CoreControllerPath":               "./pkg/generated/controllers/core",
+		"NetworkingControllerPath":         "./pkg/generated/controllers/networking",
 		"RBACControllerPath":               "./pkg/generated/controllers/rbac",
 		"BatchControllerPath":              "./pkg/generated/controllers/batch",
 		"ManagementControllerPath":         "./pkg/generated/controllers/management.cattle.io",
@@ -64,6 +68,11 @@ func main() {
 		OutputPackage: "github.com/rancher/shepherd/pkg/generated",
 		Boilerplate:   "pkg/codegen/boilerplate.go.txt",
 		Groups: map[string]args.Group{
+			autoscalingv2.GroupName: {
+				Types: []interface{}{
+					autoscalingv2.HorizontalPodAutoscaler{},
+				},
+			},
 			appsv1.GroupName: {
 				Types: []interface{}{
 					appsv1.ControllerRevision{},
@@ -89,6 +98,14 @@ func main() {
 					corev1.PersistentVolumeClaim{},
 					corev1.Pod{},
 				},
+			},
+			networkingv1.GroupName: {
+				Types: []interface{}{
+					networkingv1.Ingress{},
+					networkingv1.IngressClass{},
+					networkingv1.NetworkPolicy{},
+				},
+				OutputControllerPackageName: "networking",
 			},
 			rbacv1.GroupName: {
 				Types: []interface{}{
