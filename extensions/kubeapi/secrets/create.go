@@ -3,9 +3,8 @@ package secrets
 import (
 	"fmt"
 
-	extclusterapi "github.com/rancher/shepherd/extensions/kubeapi/cluster"
-
 	"github.com/rancher/shepherd/clients/rancher"
+	extclusterapi "github.com/rancher/shepherd/extensions/kubeapi/cluster"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -23,9 +22,24 @@ func CreateSecretWithTemplate(client *rancher.Client, clusterID string, secretTe
 
 	if client.Session != nil {
 		client.Session.RegisterCleanupFunc(func() error {
-			return DeleteSecret(client, clusterID, createdSecret.Namespace, createdSecret.Name, true)
+			adminClient, err := rancher.NewClient(client.RancherConfig.AdminToken, client.Session)
+			if err != nil {
+				return err
+			}
+
+			return DeleteSecret(adminClient, clusterID, createdSecret.Namespace, createdSecret.Name, true)
 		})
 	}
 
 	return createdSecret, nil
+}
+
+func UpdateSecretWithTemplate(client *rancher.Client, clusterID string, secretTemplate *corev1.Secret) error {
+	clusterContext, err := extclusterapi.GetClusterWranglerContext(client, clusterID)
+	if err != nil {
+		return fmt.Errorf("failed to get cluster context: %w", err)
+	}
+
+	_, err = clusterContext.Core.Secret().Update(secretTemplate)
+	return err
 }
